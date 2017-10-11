@@ -8,15 +8,17 @@ namespace Gimpies
 {
     public class Voorraad
     {
-        public Voorraad(int itemido, string itemdesco, int aantalo)
+        public Voorraad(long itemido, string itemdesco, long aantalo, float prijso, long maato)
         {
             this.itemid = itemido;
             this.itemdesc = itemdesco;
             this.itemamount = aantalo;
+            this.itemprijs = prijso;
+            this.itemmaat = maato;
         }
 
-        private int itemid;
-        public int ItemID
+        private long itemid;
+        public long ItemID
         {
             get
             {
@@ -28,8 +30,8 @@ namespace Gimpies
             }
         }
 
-        private int itemamount;
-        public int ItemAmount
+        private long itemamount;
+        public long ItemAmount
         {
             get
             {
@@ -51,6 +53,32 @@ namespace Gimpies
             set
             {
                 this.itemdesc = value;
+            }
+        }
+
+        private float itemprijs;
+        public float ItemPrijs
+        {
+            get
+            {
+                return this.itemprijs;
+            }
+            set
+            {
+                this.itemprijs = value;
+            }
+        }
+
+        private long itemmaat;
+        public long ItemMaat
+        {
+            get
+            {
+                return this.itemmaat;
+            }
+            set
+            {
+                this.itemmaat = value;
             }
         }
     }

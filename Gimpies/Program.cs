@@ -29,7 +29,7 @@ namespace Gimpies
             foreach (var line in File.ReadLines("voorraad.txt"))
             {
                 List<String> indexes = line.Split(',').ToList<String>();
-                voorraad.Add(new Voorraad(Int32.Parse(indexes[0]), indexes[1], Int32.Parse(indexes[2])));
+                voorraad.Add(new Voorraad(Int64.Parse(indexes[0]), indexes[1], Int64.Parse(indexes[2]), float.Parse(indexes[4]), Int64.Parse(indexes[3])));
             }
         }
 
@@ -39,7 +39,7 @@ namespace Gimpies
             {
                 foreach (Voorraad s in voorraad)
                 {
-                    tw.WriteLine(s.ItemID + "," + s.ItemDesc + "," + s.ItemAmount);
+                    tw.WriteLine(s.ItemID + "," + s.ItemDesc + "," + s.ItemAmount + "," + s.ItemMaat + "," + s.ItemPrijs);
                 }
             }
         }
@@ -72,21 +72,30 @@ namespace Gimpies
 
         static void Begin()
         {
-            Medewerkers medewerkersClass = new Medewerkers();
+            try
+            {
+                Medewerkers medewerkersClass = new Medewerkers();
 
-            Console.Title = "Gimpies voorraadbeheer";
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.Clear();
+                Console.Title = "Gimpies voorraadbeheer";
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.Clear();
 
-            //Console.WriteLine("Gimpies voorraadbeheer");
+                //Console.WriteLine("Gimpies voorraadbeheer");
 
-            Console.Write("Naam: ");
-            string username = Console.ReadLine();
-            uname = username;
-            Wachtwoord(0);
+                Console.Write("Naam: ");
+                string username = Console.ReadLine();
+                uname = username;
+                Wachtwoord(0);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error:");
+                Console.WriteLine(ex.ToString());
+                Console.ReadKey();
+            }
         }
         
-        static void Wachtwoord(int tries)
+        static void Wachtwoord(long tries)
         {
             Medewerkers medewerkersClass = new Medewerkers();
             Global globalClass = new Global();
@@ -196,10 +205,10 @@ namespace Gimpies
             }
             else
             {
-                bool itemBestaat = voorraad.Any(r => r.ItemID == Int32.Parse(keuze));
+                bool itemBestaat = voorraad.Any(r => r.ItemID == Int64.Parse(keuze));
                 if (itemBestaat)
                 {
-                    VoorraadBewerken(Int32.Parse(keuze));
+                    VoorraadBewerken(Int64.Parse(keuze));
                 }
                 else
                 {
@@ -210,7 +219,7 @@ namespace Gimpies
             }
         }
 
-        static void VoorraadBewerken(int id)
+        static void VoorraadBewerken(long id)
         {
             Console.Clear();
             Console.WriteLine("Typ @ om terug naar de lijst te gaan");
@@ -227,7 +236,7 @@ namespace Gimpies
                 {}
                 else
                 {
-                    if (item.ItemAmount - Int32.Parse(input) < 0)
+                    if (item.ItemAmount + Int64.Parse(input) < 0)
                     {
                         Console.WriteLine("Er kunnen er niet meer weg zijn dan dat er beschikbaar is. Er zijn er maar " + item.ItemAmount + " beschikbaar.");
                         Console.ReadLine();
@@ -235,7 +244,7 @@ namespace Gimpies
                     }
                     else
                     {
-                        item.ItemAmount = item.ItemAmount + Int32.Parse(input);
+                        item.ItemAmount = item.ItemAmount + Int64.Parse(input);
                     }
                 }
                 VoorraadBewerkenLijst();
@@ -251,13 +260,22 @@ namespace Gimpies
         static void ShowVoorraad()
         {
             //Voorraad laten zien
-            Console.WriteLine("{0,-7}{1,-20}{2,-10}", "ID", "BESCHRIJVING", "AANTAL");
+            string[] alignment = {
+                "-10", //ID
+                "-30", //BESCHRIJVING
+                "-10", //AANTAL
+                "-10", //MAAT
+                "-10"  //PRIJS
+            };
+            Console.WriteLine("{0,"+alignment[0]+"}{1,"+alignment[1]+ "}{2," + alignment[2] + "}{3," + alignment[3] + "}{4," + alignment[4] + "}", "ID", "BESCHRIJVING", "AANTAL", "MAAT", "PRIJS");
             foreach (var item in voorraad)
             {
-                Console.WriteLine("{0,-7}{1,-20}{2,-10}",
+                Console.WriteLine("{0," + alignment[0] + "}{1," + alignment[1] + "}{2," + alignment[2] + "}{3," + alignment[3] + "}{4," + alignment[4] + "}",
                                   item.ItemID,
                                   item.ItemDesc,
-                                  item.ItemAmount);
+                                  item.ItemAmount,
+                                  item.ItemMaat,
+                                  item.ItemPrijs);
             }
         }
     }
