@@ -20,7 +20,12 @@ namespace Gimpies
         Global globalClass = new Global();
         private void Login_Load(object sender, EventArgs e)
         {
-            MessageBox.Show(globalClass.MAX_LOGIN_TRIES().ToString());
+            MessageBox.Show("globalClass.MAX_LOGIN_TRIES: " + globalClass.MAX_LOGIN_TRIES().ToString());
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }

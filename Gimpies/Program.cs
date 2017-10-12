@@ -10,7 +10,7 @@ using System.IO;
 
 namespace Gimpies
 {
-    class Program
+    public class Program
     {
         [DllImport("kernel32.dll")]
         static extern IntPtr GetConsoleWindow();
@@ -24,30 +24,10 @@ namespace Gimpies
         static List<Voorraad> voorraad = new List<Voorraad>();
         static string uname;
 
-        static void VOORRAAD_LOAD()
-        {
-            foreach (var line in File.ReadLines("voorraad.txt"))
-            {
-                List<String> indexes = line.Split(',').ToList<String>();
-                voorraad.Add(new Voorraad(Int64.Parse(indexes[0]), indexes[1], Int64.Parse(indexes[2]), float.Parse(indexes[4]), Int64.Parse(indexes[3])));
-            }
-        }
-
-        static void VOORRAAD_SAVE()
-        {
-            using (TextWriter tw = new StreamWriter("voorraad.txt"))
-            {
-                foreach (Voorraad s in voorraad)
-                {
-                    tw.WriteLine(s.ItemID + "," + s.ItemDesc + "," + s.ItemAmount + "," + s.ItemMaat + "," + s.ItemPrijs);
-                }
-            }
-        }
+        static Global globalClass = new Global();
 
         static void Main(string[] args)
         {
-            Medewerkers medewerkersClass = new Medewerkers();
-
             if (args.Length>0)
             {
                 if (args[0] == "gui")
@@ -74,18 +54,21 @@ namespace Gimpies
         {
             try
             {
-                Medewerkers medewerkersClass = new Medewerkers();
-
                 Console.Title = "Gimpies voorraadbeheer";
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.Clear();
 
-                //Console.WriteLine("Gimpies voorraadbeheer");
-
                 Console.Write("Naam: ");
                 string username = Console.ReadLine();
-                uname = username;
-                Wachtwoord(0);
+                if (username == string.Empty)
+                {
+                    Begin();
+                }
+                else
+                {
+                    uname = username;
+                    Wachtwoord(0);
+                }
             }
             catch (Exception ex)
             {
@@ -97,9 +80,6 @@ namespace Gimpies
         
         static void Wachtwoord(long tries)
         {
-            Medewerkers medewerkersClass = new Medewerkers();
-            Global globalClass = new Global();
-
             if (tries < globalClass.MAX_LOGIN_TRIES())
             {
                 Console.Clear();
@@ -112,9 +92,9 @@ namespace Gimpies
                         break;
                     password += key.KeyChar;
                 }
-                if (medewerkersClass.Login(password))
+                if (globalClass.LOGIN(password))
                 {
-                    VOORRAAD_LOAD();
+                    voorraad = globalClass.VOORRAAD_LOAD();
                     Menu();
                 }
                 else
@@ -133,37 +113,34 @@ namespace Gimpies
         }
 
         static void Menu()
-        {
-            Medewerkers medewerkersClass = new Medewerkers();
-            
+        {            
             Console.Clear();
-            string titleText = "Welkom " + uname + "!";
-            Console.WriteLine(String.Format("{0," + ((Console.WindowWidth / 2) + (titleText.Length / 2)) + "}", titleText));
+            string titleText = "Welkom " + globalClass.FIRST_CHAR_UC(uname) + "!";
+            Console.WriteLine(String.Format("{0," + ((Console.WindowWidth / 2) + (titleText.Length / 2)) + "}", titleText)); //Welkom bericht in het midden
 
 
             //Menu
-            Console.WriteLine();
-            Console.WriteLine("\t1. Voorraad bekijken");
-            Console.WriteLine("\t2. Voorraad wijzigen");
-            Console.WriteLine();
-            Console.WriteLine("\t9. Uitloggen");
-            Console.WriteLine("\t0. Afsluiten");
-            Console.WriteLine();
-            Console.Write("Keuze: ");
+            Console.WriteLine("\n\t1. Voorraad bekijken" + 
+                "\n\t2. Voorraad wijzigen\n" +
+                "\n\t9. Uitloggen" +
+                "\n\t0. Afsluiten");
+            Console.Write("\nKeuze: ");
             
             string keuze = Console.ReadLine();
             if (keuze == "1")
             {
                 VoorraadBekijken();
+                //Voorraad bekijken
             }
             else if (keuze == "2")
             {
                 VoorraadBewerkenLijst();
+                //Naar de lijst om te bewerken
             }
             else if (keuze == "9")
             {
                 //Uitloggen (log)
-                //naar begin
+                //Naar begin
                 Begin();
             }
             else if (keuze == "0")
@@ -174,6 +151,7 @@ namespace Gimpies
             else
             {
                 Menu();
+                //Naar menu
             }
         }
 
@@ -200,8 +178,12 @@ namespace Gimpies
             string keuze = Console.ReadLine();
             if (keuze == "@")
             {
-                VOORRAAD_SAVE();
+                globalClass.VOORRAAD_SAVE(voorraad);
                 Menu();
+            }
+            else if (keuze == string.Empty)
+            {
+                VoorraadBewerkenLijst();
             }
             else
             {
@@ -233,7 +215,11 @@ namespace Gimpies
                 Console.Write("Verandering: ");
                 string input = Console.ReadLine();
                 if (input == "@")
-                {}
+                { }
+                else if (input == string.Empty)
+                {
+                    VoorraadBewerkenLijst();
+                }
                 else
                 {
                     if (item.ItemAmount + Int64.Parse(input) < 0)
@@ -244,7 +230,7 @@ namespace Gimpies
                     }
                     else
                     {
-                        item.ItemAmount = item.ItemAmount + Int64.Parse(input);
+                        item.ItemAmount += Int64.Parse(input);
                     }
                 }
                 VoorraadBewerkenLijst();
@@ -277,6 +263,6 @@ namespace Gimpies
                                   item.ItemMaat,
                                   item.ItemPrijs);
             }
-        }
+        }   
     }
 }
