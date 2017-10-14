@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Gimpies
 {
@@ -13,28 +14,30 @@ namespace Gimpies
         {
             return 3;
         }
-
         public string FILE_LOCATION()
         {
             return "voorraad.txt";
         }
-
         public string FIRST_CHAR_UC(string text)
         {
             return text.First().ToString().ToUpper() + String.Join("", text.Skip(1));
         }
-
         public List<Voorraad> VOORRAAD_LOAD()
         {
             List<Voorraad> voorraad = new List<Voorraad>();
             foreach (var line in File.ReadLines(FILE_LOCATION()))
             {
                 List<String> indexes = line.Split(',').ToList<String>();
-                voorraad.Add(new Voorraad(Int64.Parse(indexes[0]), indexes[1], Int64.Parse(indexes[2]), float.Parse(indexes[4]), Int64.Parse(indexes[3])));
+                Voorraad newVoorraad = new Voorraad();
+                newVoorraad.ItemID = Int64.Parse(indexes[0]);
+                newVoorraad.ItemDesc = (indexes[1]);
+                newVoorraad.ItemAmount = Int64.Parse(indexes[2]);
+                newVoorraad.ItemPrijs = (indexes[4]);
+                newVoorraad.ItemMaat = Int64.Parse(indexes[3]);
+                voorraad.Add(newVoorraad);
             }
             return voorraad;
         }
-
         public void VOORRAAD_SAVE(List<Voorraad> voorraad)
         {
             using (TextWriter tw = new StreamWriter(FILE_LOCATION()))
@@ -45,7 +48,6 @@ namespace Gimpies
                 }
             }
         }
-
         public bool LOGIN(string wachtwoord)
         {
             if (wachtwoord == "1")

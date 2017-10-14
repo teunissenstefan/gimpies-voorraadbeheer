@@ -22,7 +22,15 @@ namespace Gimpies
         const int SW_SHOW = 5;
 
         static List<Voorraad> voorraad = new List<Voorraad>();
-        static string uname;
+        static string _username = "";
+
+        const ConsoleKey menuKey = ConsoleKey.F8;
+        const ConsoleKey backKey = ConsoleKey.Escape;
+
+        const string backMsg = "@BACK@";
+        const string menuMsg = "@MENU@";
+
+        const char horPipe = (char)9552;
 
         static Global globalClass = new Global();
 
@@ -41,184 +49,224 @@ namespace Gimpies
                 }
                 else
                 {
-                    Begin();
+                    MainView(View.Login);
                 }
             }
             else
             {
-                Begin();
+                MainView(View.Login);
             }
         }
 
-        static void Begin()
+        static void Header(string _title = "")
+        {
+            string title;
+            if (_title == string.Empty)
+            {
+                title = "Gimpies voorraadbeheer";
+            }
+            else
+            {
+                title = "Gimpies voorraadbeheer | " + _title;
+            }
+            Console.Title = title;
+            Console.Clear();
+            if (_username != string.Empty)
+            {
+                string headerText = "Welkom " + globalClass.FIRST_CHAR_UC(_username) + "! " + menuKey.ToString() + "=Menu " + backKey.ToString() + "=Terug";
+                string hr = "##################################################################";
+                //Welkom bericht in het midden:
+                //Console.WriteLine(String.Format("{0," + ((Console.WindowWidth / 2) + (headerText.Length / 2)) + "}", headerText)); 
+                //Console.WriteLine(String.Format("{0," + ((Console.WindowWidth / 2) + (hr.Length / 2)) + "}", hr));
+                Console.WriteLine(headerText);
+                Console.Write(new string(horPipe,Console.WindowWidth));
+                Console.Write("\n");
+            }
+        }
+
+        static void MainView(View view, string prevInput = "")
         {
             try
             {
-                Console.Title = "Gimpies voorraadbeheer";
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.Clear();
-
-                Console.Write("Naam: ");
-                string username = Console.ReadLine();
-                if (username == string.Empty)
+                switch (view)
                 {
-                    Begin();
-                }
-                else
-                {
-                    uname = username;
-                    Wachtwoord(0);
+                    case View.Login:
+                        DisplayLoginUsername();
+                        break;
+                    case View.Menu:
+                        if (_username != string.Empty) {
+                            DisplayMenu(prevInput);
+                        }
+                        else
+                        {
+                            DisplayLoginUsername();
+                        }
+                        break;
+                    case View.BekijkVoorraad:
+                        DisplayVoorraad();
+                        break;
+                    case View.BekijkEditVoorraadList:
+                        VoorraadBewerkenLijst();
+                        break;
+                    case View.EditVoorraad:
+                        VoorraadBewerken(Int64.Parse(prevInput));
+                        break;
+                    case View.EXIT:
+                        //Niks dus sluit hij af
+                        break;
+                    default:
+                        MainView(View.Login);
+                        break;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error:");
-                Console.WriteLine(ex.ToString());
-                Console.ReadKey();
+                Console.WriteLine(Environment.NewLine + ex.ToString());
+                Console.ReadLine();
+                MainView(view);
             }
         }
-        
-        static void Wachtwoord(long tries)
+
+        static void DisplayLoginUsername(int tries = 0)
         {
-            if (tries < globalClass.MAX_LOGIN_TRIES())
+            Header("Login");
+            Console.Write("Username: ");
+            DisplayLoginPassword(tries, ReadLine());
+        }
+
+        static void DisplayLoginPassword(int tries = 0, string username = "")
+        {
+            if (username == string.Empty)
             {
-                Console.Clear();
-                Console.Write("Wachtwoord: ");
-                string password = null;
-                while (true)
-                {
-                    var key = System.Console.ReadKey(true);
-                    if (key.Key == ConsoleKey.Enter)
-                        break;
-                    password += key.KeyChar;
-                }
-                if (globalClass.LOGIN(password))
-                {
-                    voorraad = globalClass.VOORRAAD_LOAD();
-                    Menu();
-                }
-                else
-                {
-                    Console.Clear();
-                    Console.WriteLine("Wachtwoord fout");
-                    Console.ReadKey();
-                    //Als het wachtwoord fout is gebruiker opnieuw laten proberen
-                    Wachtwoord(tries+1);
-                }
+                DisplayLoginUsername();
             }
             else
             {
-                Begin();
+                Console.Write("\nPassword: ");
+                if (globalClass.LOGIN(ReadPassword()))
+                {
+                    _username = username;
+                    MainView(View.Menu);
+                }
+                else
+                {
+                    tries = tries + 1;
+                    if (tries < globalClass.MAX_LOGIN_TRIES())
+                    {
+                        DisplayLoginUsername(tries);
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Wachtwoord 3 keer fout");
+                        Console.ReadKey();
+                    }
+                }
             }
         }
 
-        static void Menu()
-        {            
-            Console.Clear();
-            string titleText = "Welkom " + globalClass.FIRST_CHAR_UC(uname) + "!";
-            Console.WriteLine(String.Format("{0," + ((Console.WindowWidth / 2) + (titleText.Length / 2)) + "}", titleText)); //Welkom bericht in het midden
-
-
-            //Menu
-            Console.WriteLine("\n\t1. Voorraad bekijken" + 
+        static void DisplayMenu(string input)
+        {
+            Header("Menu");
+            Console.WriteLine("\t1. Voorraad bekijken" +
                 "\n\t2. Voorraad wijzigen\n" +
                 "\n\t9. Uitloggen" +
                 "\n\t0. Afsluiten");
             Console.Write("\nKeuze: ");
-            
-            string keuze = Console.ReadLine();
-            if (keuze == "1")
+            if (input == string.Empty)
             {
-                VoorraadBekijken();
-                //Voorraad bekijken
+                MainView(View.Menu, ReadLine());
             }
-            else if (keuze == "2")
+            else if (input == "1")
             {
-                VoorraadBewerkenLijst();
-                //Naar de lijst om te bewerken
+                MainView(View.BekijkVoorraad);
             }
-            else if (keuze == "9")
+            else if (input == "2")
             {
-                //Uitloggen (log)
-                //Naar begin
-                Begin();
+                MainView(View.BekijkEditVoorraadList);
             }
-            else if (keuze == "0")
+            else if (input == "9")
             {
-                //Uitloggen (log)
-                Application.Exit();
+                _username = "";
+                MainView(View.Login);
+            }
+            else if (input == "0")
+            {
+                MainView(View.EXIT);
             }
             else
             {
-                Menu();
-                //Naar menu
+                MainView(View.Menu);
             }
         }
 
-        static void VoorraadBekijken()
+        static void DisplayVoorraad()
         {
-            Console.Clear();
-
+            Header("Bekijk voorraad");
+            voorraad = globalClass.VOORRAAD_LOAD();
             ShowVoorraad();
-
             Console.ReadKey();
-            Menu();
+            MainView(View.Menu);
         }
 
         static void VoorraadBewerkenLijst()
         {
-            Console.Clear();
-            Console.WriteLine("Typ @ om terug naar het menu te gaan");
-            Console.WriteLine("Typ het ID in van het item dat je wilt aanpassen");
-            Console.WriteLine();
+            Header("Voorraad bewerken");
+            voorraad = globalClass.VOORRAAD_LOAD();
 
             ShowVoorraad();
             Console.WriteLine();
 
-            string keuze = Console.ReadLine();
-            if (keuze == "@")
+            Console.WriteLine("Typ het ID in van het item dat je wilt aanpassen");
+            string keuze = ReadLine();
+            if (keuze == menuMsg || keuze == backMsg)
             {
-                globalClass.VOORRAAD_SAVE(voorraad);
-                Menu();
+                MainView(View.Menu);
             }
             else if (keuze == string.Empty)
             {
-                VoorraadBewerkenLijst();
+                MainView(View.BekijkEditVoorraadList);
             }
             else
             {
                 bool itemBestaat = voorraad.Any(r => r.ItemID == Int64.Parse(keuze));
                 if (itemBestaat)
                 {
-                    VoorraadBewerken(Int64.Parse(keuze));
+                    MainView(View.EditVoorraad,keuze);
                 }
                 else
                 {
-                    Console.WriteLine("Item bestaat niet");
+                    Console.WriteLine("\n\nItem bestaat niet");
                     Console.ReadLine();
-                    VoorraadBewerkenLijst();
+                    MainView(View.BekijkEditVoorraadList);
                 }
             }
         }
 
         static void VoorraadBewerken(long id)
         {
-            Console.Clear();
-            Console.WriteLine("Typ @ om terug naar de lijst te gaan");
+            Header("Bewerken");
             bool itemBestaat = voorraad.Any(r => r.ItemID == id);
             if (itemBestaat)
             {
                 var item = voorraad.Find(r => r.ItemID == id);
+                Header(item.ItemDesc+" bewerken");
                 Console.WriteLine(item.ItemDesc);
                 Console.WriteLine("Huidig aantal: " + item.ItemAmount);
                 Console.WriteLine();
                 Console.Write("Verandering: ");
-                string input = Console.ReadLine();
-                if (input == "@")
-                { }
+                string input = ReadLine();
+                if (input == menuMsg)
+                {
+                    MainView(View.Menu);
+                }
+                else if (input == backMsg)
+                {
+                    MainView(View.BekijkEditVoorraadList);
+                }
                 else if (input == string.Empty)
                 {
-                    VoorraadBewerkenLijst();
+                    MainView(View.BekijkEditVoorraadList);
                 }
                 else
                 {
@@ -226,14 +274,15 @@ namespace Gimpies
                     {
                         Console.WriteLine("Er kunnen er niet meer weg zijn dan dat er beschikbaar is. Er zijn er maar " + item.ItemAmount + " beschikbaar.");
                         Console.ReadLine();
-                        VoorraadBewerken(id);
+                        MainView(View.EditVoorraad, id.ToString());
                     }
                     else
                     {
                         item.ItemAmount += Int64.Parse(input);
+                        globalClass.VOORRAAD_SAVE(voorraad);
+                        MainView(View.BekijkEditVoorraadList);
                     }
                 }
-                VoorraadBewerkenLijst();
             }
             else
             {
@@ -263,6 +312,79 @@ namespace Gimpies
                                   item.ItemMaat,
                                   item.ItemPrijs);
             }
-        }   
+        }
+
+        static string ReadLine()
+        {
+            string input = "";
+            ConsoleKeyInfo key;
+            do
+            {
+                key = Console.ReadKey(true);
+                if (key.Key == menuKey)
+                {
+                    return menuMsg;
+                }
+                if (key.Key == backKey)
+                {
+                    return backMsg;
+                }
+                if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
+                {
+                    input += key.KeyChar;
+                    Console.Write(key.KeyChar);
+                }
+                else
+                {
+                    if (key.Key == ConsoleKey.Backspace && input.Length > 0)
+                    {
+                        input = input.Substring(0, (input.Length - 1));
+                        Console.Write("\b \b");
+                    }
+                }
+            } while (key.Key != ConsoleKey.Enter);
+            return input;
+        }
+        static string ReadPassword()
+        {
+            string input = "";
+            ConsoleKeyInfo key;
+            do
+            {
+                key = Console.ReadKey(true);
+                if (key.Key == menuKey)
+                {
+                    return menuMsg;
+                }
+                if (key.Key == backKey)
+                {
+                    return backMsg;
+                }
+                if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
+                {
+                    input += key.KeyChar;
+                    Console.Write("*");
+                }
+                else
+                {
+                    if (key.Key == ConsoleKey.Backspace && input.Length > 0)
+                    {
+                        input = input.Substring(0, (input.Length - 1));
+                        Console.Write("\b \b");
+                    }
+                }
+            } while (key.Key != ConsoleKey.Enter);
+            return input;
+        }
+        
+        enum View
+        {
+            Login,
+            Menu,
+            BekijkVoorraad,
+            BekijkEditVoorraadList,
+            EditVoorraad,
+            EXIT
+        }
     }
 }
