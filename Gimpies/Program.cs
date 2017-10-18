@@ -79,7 +79,7 @@ namespace Gimpies
                 //Console.WriteLine(String.Format("{0," + ((Console.WindowWidth / 2) + (headerText.Length / 2)) + "}", headerText)); 
                 //Console.WriteLine(String.Format("{0," + ((Console.WindowWidth / 2) + (hr.Length / 2)) + "}", hr));
                 Console.WriteLine(headerText);
-                Console.Write(new string(horPipe,Console.WindowWidth));
+                WindowLine();
                 Console.Write("\n");
             }
         }
@@ -215,8 +215,7 @@ namespace Gimpies
             voorraad = globalClass.VOORRAAD_LOAD();
 
             ShowVoorraad();
-            Console.WriteLine();
-
+            WindowLine();
             Console.WriteLine("Typ het ID in van het item dat je wilt aanpassen");
             string keuze = ReadLine();
             if (keuze == menuMsg || keuze == backMsg)
@@ -251,7 +250,8 @@ namespace Gimpies
             {
                 var item = voorraad.Find(r => r.ItemID == id);
                 Header(item.ItemDesc+" bewerken");
-                Console.WriteLine(item.ItemDesc);
+                ShowVoorraad(id);
+                WindowLine();
                 Console.WriteLine("Huidig aantal: " + item.ItemAmount);
                 Console.WriteLine();
                 Console.Write("Verandering: ");
@@ -266,6 +266,7 @@ namespace Gimpies
                 }
                 else if (input == string.Empty)
                 {
+                    //Als hij leeg is juist zelfde laten en naar volgende gaan
                     MainView(View.BekijkEditVoorraadList);
                 }
                 else
@@ -278,7 +279,12 @@ namespace Gimpies
                     }
                     else
                     {
+                        //Veranderen in lokale lijst
                         item.ItemAmount += Int64.Parse(input);
+
+                        //Naar volgende gaan (beschrijving ofzo)
+
+                        //Lokale lijst opslaan in lijst
                         globalClass.VOORRAAD_SAVE(voorraad);
                         MainView(View.BekijkEditVoorraadList);
                     }
@@ -288,11 +294,11 @@ namespace Gimpies
             {
                 Console.WriteLine("Item bestaat niet");
                 Console.ReadLine();
-                VoorraadBewerkenLijst();
+                MainView(View.BekijkEditVoorraadList);
             }
         }
 
-        static void ShowVoorraad()
+        static void ShowVoorraad(long id = 0)
         {
             //Voorraad laten zien
             string[] alignment = {
@@ -302,18 +308,43 @@ namespace Gimpies
                 "-10", //MAAT
                 "-10"  //PRIJS
             };
-            Console.WriteLine("{0,"+alignment[0]+"}{1,"+alignment[1]+ "}{2," + alignment[2] + "}{3," + alignment[3] + "}{4," + alignment[4] + "}", "ID", "BESCHRIJVING", "AANTAL", "MAAT", "PRIJS");
-            foreach (var item in voorraad)
+            Console.WriteLine("{0," + alignment[0] + "}{1," + alignment[1] + "}{2," + alignment[2] + "}{3," + alignment[3] + "}{4," + alignment[4] + "}", "ID", "BESCHRIJVING", "AANTAL", "MAAT", "PRIJS");
+            if (id == 0)
             {
-                Console.WriteLine("{0," + alignment[0] + "}{1," + alignment[1] + "}{2," + alignment[2] + "}{3," + alignment[3] + "}{4," + alignment[4] + "}",
-                                  item.ItemID,
-                                  item.ItemDesc,
-                                  item.ItemAmount,
-                                  item.ItemMaat,
-                                  item.ItemPrijs);
+                foreach (var item in voorraad)
+                { 
+                    Console.WriteLine("{0," + alignment[0] + "}{1," + alignment[1] + "}{2," + alignment[2] + "}{3," + alignment[3] + "}{4," + alignment[4] + "}",
+                                    item.ItemID,
+                                    item.ItemDesc,
+                                    item.ItemAmount,
+                                    item.ItemMaat,
+                                    item.ItemPrijs);
+                }
+            }
+            else
+            {
+                bool itemBestaat = voorraad.Any(r => r.ItemID == id);
+                if (itemBestaat)
+                {
+                    var item = voorraad.Find(r => r.ItemID == id);
+                    Console.WriteLine("{0," + alignment[0] + "}{1," + alignment[1] + "}{2," + alignment[2] + "}{3," + alignment[3] + "}{4," + alignment[4] + "}",
+                                        item.ItemID,
+                                        item.ItemDesc,
+                                        item.ItemAmount,
+                                        item.ItemMaat,
+                                        item.ItemPrijs);
+                }
+                else
+                {
+                    Console.WriteLine("Item bestaat niet");
+                }
             }
         }
 
+        static void WindowLine()
+        {
+            Console.Write(new string(horPipe, Console.WindowWidth));
+        }
         static string ReadLine()
         {
             string input = "";
