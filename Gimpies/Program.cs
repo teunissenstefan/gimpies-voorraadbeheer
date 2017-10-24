@@ -29,6 +29,7 @@ namespace Gimpies
 
         const string backMsg = "@BACK@";
         const string menuMsg = "@MENU@";
+        static bool exit = false;
 
         const char horPipe = (char)9552;
 
@@ -60,6 +61,7 @@ namespace Gimpies
 
         static void Header(string _title = "")
         {
+            if (exit) { return; }
             string title;
             if (_title == string.Empty)
             {
@@ -86,6 +88,7 @@ namespace Gimpies
 
         static void MainView(View view, string prevInput = "")
         {
+            if (exit) { return; }
             try
             {
                 switch (view)
@@ -108,10 +111,32 @@ namespace Gimpies
                     case View.BekijkEditVoorraadList:
                         VoorraadBewerkenLijst();
                         break;
+                    case View.EditVoorraadMenu:
+                        VoorraadMenu();
+                        break;
+                    case View.ArtikelToevoegen:
+                        ArtikelToevoegen();
+                        break;
+                    case View.ArtikelVerwijderen:
+                        ArtikelVerwijderen();
+                        break;
                     case View.EditVoorraad:
                         VoorraadBewerken(Int64.Parse(prevInput));
                         break;
+                    case View.EditAantal:
+                        BewerkAantal(Int64.Parse(prevInput));
+                        break;
+                    case View.EditBeschrijving:
+                        BewerkBeschrijving(Int64.Parse(prevInput));
+                        break;
+                    case View.EditMaat:
+                        BewerkMaat(Int64.Parse(prevInput));
+                        break;
+                    case View.EditPrijs:
+                        BewerkPrijs(Int64.Parse(prevInput));
+                        break;
                     case View.EXIT:
+                        exit = true;
                         //Niks dus sluit hij af
                         break;
                     default:
@@ -129,6 +154,7 @@ namespace Gimpies
 
         static void DisplayLoginUsername(int tries = 0)
         {
+            if (exit) { return; }
             Header("Login");
             Console.Write("Username: ");
             DisplayLoginPassword(tries, ReadLine());
@@ -136,6 +162,7 @@ namespace Gimpies
 
         static void DisplayLoginPassword(int tries = 0, string username = "")
         {
+            if (exit) { return; }
             if (username == string.Empty)
             {
                 DisplayLoginUsername();
@@ -167,6 +194,7 @@ namespace Gimpies
 
         static void DisplayMenu(string input)
         {
+            if (exit) { return; }
             Header("Menu");
             Console.WriteLine("\t1. Voorraad bekijken" +
                 "\n\t2. Voorraad wijzigen\n" +
@@ -183,7 +211,7 @@ namespace Gimpies
             }
             else if (input == "2")
             {
-                MainView(View.BekijkEditVoorraadList);
+                MainView(View.EditVoorraadMenu);
             }
             else if (input == "9")
             {
@@ -202,6 +230,7 @@ namespace Gimpies
 
         static void DisplayVoorraad()
         {
+            if (exit) { return; }
             Header("Bekijk voorraad");
             voorraad = globalClass.VOORRAAD_LOAD();
             ShowVoorraad();
@@ -211,6 +240,7 @@ namespace Gimpies
 
         static void VoorraadBewerkenLijst()
         {
+            if (exit) { return; }
             Header("Voorraad bewerken");
             voorraad = globalClass.VOORRAAD_LOAD();
 
@@ -218,9 +248,13 @@ namespace Gimpies
             WindowLine();
             Console.WriteLine("Typ het ID in van het item dat je wilt aanpassen");
             string keuze = ReadLine();
-            if (keuze == menuMsg || keuze == backMsg)
+            if (keuze == menuMsg)
             {
                 MainView(View.Menu);
+            }
+            else if (keuze == backMsg)
+            {
+                MainView(View.EditVoorraadMenu);
             }
             else if (keuze == string.Empty)
             {
@@ -242,14 +276,150 @@ namespace Gimpies
             }
         }
 
+        static void VoorraadMenu()
+        {
+            if (exit) { return; }
+            Header("Voorraad menu");
+            Console.WriteLine("\t1. Artikel toevoegen" +
+            "\n\t2. Artikel bewerken" +
+            "\n\t3. Ariktel verwijderen");
+            //Bewerken van de andere toevoegen
+            Console.Write("\nKeuze: ");
+            string input = ReadLine();
+            if (input == menuMsg || input == backMsg)
+            {
+                MainView(View.Menu);
+            }
+            else if (input == "1")
+            {
+                //Naar artikel toevoegen gaan
+                MainView(View.ArtikelToevoegen);
+            }
+            else if (input == "2")
+            {
+                //Naar artikel bewerken gaan
+                MainView(View.BekijkEditVoorraadList);
+            }
+            else if (input == "3")
+            {
+                //Naar artikel verwijderen gaan
+                MainView(View.ArtikelVerwijderen);
+            }
+            else
+            {
+                MainView(View.EditVoorraadMenu);
+            }
+        }
+
         static void VoorraadBewerken(long id)
         {
+            if (exit) { return; }
             Header("Bewerken");
             bool itemBestaat = voorraad.Any(r => r.ItemID == id);
             if (itemBestaat)
             {
                 var item = voorraad.Find(r => r.ItemID == id);
                 Header(item.ItemDesc+" bewerken");
+                ShowVoorraad(id);
+                WindowLine();
+                Console.WriteLine("\t1. Beschrijving bewerken" +
+                "\n\t2. Aantal bewerken" +
+                "\n\t3. Maat bewerken" +
+                "\n\t4. Prijs bewerken");
+                //Bewerken van de andere toevoegen
+                Console.Write("\nKeuze: ");
+                string input = ReadLine();
+                if (input == menuMsg)
+                {
+                    MainView(View.Menu);
+                }
+                else if (input == backMsg)
+                {
+                    MainView(View.BekijkEditVoorraadList);
+                }
+                else if (input == "1")
+                {
+                    //Naar beschrijving bewerken gaan
+                    MainView(View.EditBeschrijving, id.ToString());
+                }
+                else if (input == "2")
+                {
+                    //Naar aantal bewerken gaan
+                    MainView(View.EditAantal, id.ToString());
+                }
+                else if (input == "3")
+                {
+                    //Naar maat bewerken gaan
+                    MainView(View.EditMaat, id.ToString());
+                }
+                else if (input == "4")
+                {
+                    //Naar maat bewerken gaan
+                    MainView(View.EditPrijs, id.ToString());
+                }
+                else
+                {
+                    MainView(View.EditVoorraad, id.ToString());
+                }
+            }
+            else
+            {
+                Console.WriteLine("Item bestaat niet");
+                Console.ReadLine();
+                MainView(View.BekijkEditVoorraadList);
+            }
+        }
+        
+        static void ArtikelVerwijderen()
+        {
+            if (exit) { return; }
+            Header("Artikel verwijderen");
+
+            voorraad = globalClass.VOORRAAD_LOAD();
+
+            ShowVoorraad();
+            WindowLine();
+            Console.WriteLine("Typ het ID in van het item dat je wilt verwijderen");
+            string keuze = ReadLine();
+            if (keuze == menuMsg)
+            {
+                MainView(View.Menu);
+            }
+            else if (keuze == backMsg)
+            {
+                MainView(View.EditVoorraadMenu);
+            }
+            else if (keuze == string.Empty)
+            {
+                MainView(View.ArtikelVerwijderen);
+            }
+            else
+            {
+                bool bestaatItem = voorraad.Any(r => r.ItemID == Int64.Parse(keuze));
+                if (bestaatItem)
+                {
+                    voorraad.RemoveAll(x => x.ItemID == Int64.Parse(keuze));
+                    globalClass.VOORRAAD_SAVE(voorraad);
+                    MainView(View.ArtikelVerwijderen, keuze);
+                }
+                else
+                {
+                    Console.WriteLine("\n\nItem bestaat niet");
+                    Console.ReadLine();
+                    MainView(View.ArtikelVerwijderen);
+                }
+            }
+        }
+
+        static void BewerkAantal(long id)
+        {
+            if (exit) { return; }
+            Header("Aantal bewerken");
+            bool itemBestaat = voorraad.Any(r => r.ItemID == id);
+            if (itemBestaat)
+            {
+                var item = voorraad.Find(r => r.ItemID == id);
+                Header(item.ItemDesc + " aantal bewerken");
                 ShowVoorraad(id);
                 WindowLine();
                 Console.WriteLine("Huidig aantal: " + item.ItemAmount);
@@ -262,12 +432,11 @@ namespace Gimpies
                 }
                 else if (input == backMsg)
                 {
-                    MainView(View.BekijkEditVoorraadList);
+                    MainView(View.EditVoorraad, id.ToString());
                 }
                 else if (input == string.Empty)
                 {
-                    //Als hij leeg is juist zelfde laten en naar volgende gaan
-                    MainView(View.BekijkEditVoorraadList);
+                    MainView(View.EditVoorraad, id.ToString());
                 }
                 else
                 {
@@ -275,18 +444,15 @@ namespace Gimpies
                     {
                         Console.WriteLine("Er kunnen er niet meer weg zijn dan dat er beschikbaar is. Er zijn er maar " + item.ItemAmount + " beschikbaar.");
                         Console.ReadLine();
-                        MainView(View.EditVoorraad, id.ToString());
+                        MainView(View.EditAantal, id.ToString());
                     }
                     else
                     {
                         //Veranderen in lokale lijst
                         item.ItemAmount += Int64.Parse(input);
-
-                        //Naar volgende gaan (beschrijving ofzo)
-
                         //Lokale lijst opslaan in lijst
                         globalClass.VOORRAAD_SAVE(voorraad);
-                        MainView(View.BekijkEditVoorraadList);
+                        MainView(View.EditVoorraad, id.ToString());
                     }
                 }
             }
@@ -298,8 +464,239 @@ namespace Gimpies
             }
         }
 
+        static void BewerkBeschrijving(long id)
+        {
+            if (exit) { return; }
+            Header("Beschrijving bewerken");
+            bool itemBestaat = voorraad.Any(r => r.ItemID == id);
+            if (itemBestaat)
+            {
+                var item = voorraad.Find(r => r.ItemID == id);
+                Header(item.ItemDesc + " beschrijving bewerken");
+                ShowVoorraad(id);
+                WindowLine();
+                Console.WriteLine("Huidige beschrijving: " + item.ItemDesc);
+                Console.WriteLine();
+                Console.Write("Nieuwe beschrijving: ");
+                string input = ReadLine();
+                if (input == menuMsg)
+                {
+                    MainView(View.Menu);
+                }
+                else if (input == backMsg)
+                {
+                    MainView(View.EditVoorraad, id.ToString());
+                }
+                else if (input == string.Empty)
+                {
+                    MainView(View.EditVoorraad, id.ToString());
+                }
+                else
+                {
+                    //Veranderen in lokale lijst
+                    item.ItemDesc = input;
+                    //Lokale lijst opslaan in lijst
+                    globalClass.VOORRAAD_SAVE(voorraad);
+                    MainView(View.EditVoorraad, id.ToString());
+                }
+            }
+            else
+            {
+                Console.WriteLine("Item bestaat niet");
+                Console.ReadLine();
+                MainView(View.BekijkEditVoorraadList);
+            }
+        }
+
+        static void BewerkMaat(long id)
+        {
+            if (exit) { return; }
+            Header("Maat bewerken");
+            bool itemBestaat = voorraad.Any(r => r.ItemID == id);
+            if (itemBestaat)
+            {
+                var item = voorraad.Find(r => r.ItemID == id);
+                Header(item.ItemDesc + " maat bewerken");
+                ShowVoorraad(id);
+                WindowLine();
+                Console.WriteLine("Huidige maat: " + item.ItemMaat);
+                Console.WriteLine();
+                Console.Write("Nieuwe maat: ");
+                string input = ReadLine();
+                if (input == menuMsg)
+                {
+                    MainView(View.Menu);
+                }
+                else if (input == backMsg)
+                {
+                    MainView(View.EditVoorraad, id.ToString());
+                }
+                else if (input == string.Empty)
+                {
+                    MainView(View.EditVoorraad, id.ToString());
+                }
+                else
+                {
+                    //Veranderen in lokale lijst
+                    item.ItemMaat = Int64.Parse(input);
+                    //Lokale lijst opslaan in lijst
+                    globalClass.VOORRAAD_SAVE(voorraad);
+                    MainView(View.EditVoorraad, id.ToString());
+                }
+            }
+            else
+            {
+                Console.WriteLine("Item bestaat niet");
+                Console.ReadLine();
+                MainView(View.BekijkEditVoorraadList);
+            }
+        }
+
+        static void BewerkPrijs(long id)
+        {
+            if (exit) { return; }
+            Header("Prijs bewerken");
+            bool itemBestaat = voorraad.Any(r => r.ItemID == id);
+            if (itemBestaat)
+            {
+                var item = voorraad.Find(r => r.ItemID == id);
+                Header(item.ItemDesc + " prijs bewerken");
+                ShowVoorraad(id);
+                WindowLine();
+                Console.WriteLine("Huidige prijs: " + item.ItemPrijs);
+                Console.WriteLine();
+                Console.Write("Nieuwe prijs: ");
+                string input = ReadLine();
+                if (input == menuMsg)
+                {
+                    MainView(View.Menu);
+                }
+                else if (input == backMsg)
+                {
+                    MainView(View.EditVoorraad, id.ToString());
+                }
+                else if (input == string.Empty)
+                {
+                    MainView(View.EditVoorraad, id.ToString());
+                }
+                else
+                {
+                    // , vervangen door .
+                    input = input.Replace(',', '.');
+                    //Veranderen in lokale lijst
+                    item.ItemPrijs = input;
+                    //Lokale lijst opslaan in lijst
+                    globalClass.VOORRAAD_SAVE(voorraad);
+                    MainView(View.EditVoorraad, id.ToString());
+                }
+            }
+            else
+            {
+                Console.WriteLine("Item bestaat niet");
+                Console.ReadLine();
+                MainView(View.BekijkEditVoorraadList);
+            }
+        }
+
+        static void ArtikelToevoegen()
+        {
+            if (exit) { return; }
+            voorraad = globalClass.VOORRAAD_LOAD();
+            bool invulLoop = false;
+            bool opslaan = false;
+            int index = 0;
+            Voorraad temp = new Voorraad();
+            while (!invulLoop)
+            {
+                Header("Artikel Toevoegen");
+                if (voorraad.Count <=0)
+                {
+                    temp.ItemID = 1;
+                }
+                else
+                {
+                    temp.ItemID = voorraad[voorraad.Count - 1].ItemID + 1;
+                }
+                Console.WriteLine("\tID: " + temp.ItemID+
+                    "\n\tBeschrijving: " + temp.ItemDesc +
+                    "\n\tAantal: " + temp.ItemAmount +
+                    "\n\tMaat: " + temp.ItemMaat +
+                    "\n\tPrijs: " + temp.ItemPrijs);
+                switch (index)
+                {
+                    case 0:
+                        Console.Write("\nBeschrijving: ");
+                        break;
+                    case 1:
+                        Console.Write("\nAantal: ");
+                        break;
+                    case 2:
+                        Console.Write("\nMaat: ");
+                        break;
+                    case 3:
+                        Console.Write("\nPrijs: ");
+                        break;
+                    default:
+                        invulLoop = true;
+                        MainView(View.Menu);
+                        break;
+                }
+                string input = ReadLine();
+                if (input == menuMsg)
+                {
+                    MainView(View.Menu);
+                    break;
+                }
+                else if (input == backMsg)
+                {
+                    MainView(View.EditVoorraadMenu);
+                    break;
+                }
+                else
+                {
+                    switch (index)
+                    {
+                        case 0:
+                            temp.ItemDesc = input;
+                            index++;
+                            break;
+                        case 1:
+                            temp.ItemAmount = Int64.Parse(input);
+                            index++;
+                            break;
+                        case 2:
+                            temp.ItemMaat = Int64.Parse(input);
+                            index++;
+                            break;
+                        case 3:
+                            temp.ItemPrijs = input;
+                            invulLoop = true;
+                            opslaan = true;
+                            break;
+                        default:
+                            invulLoop = true;
+                            MainView(View.Menu);
+                            break;
+                    }
+                }
+            }
+            if (opslaan)
+            {
+                //Opslaan in lokale lijst
+                voorraad.Add(temp);
+                //Lokale lijst opslaan in lijst
+                globalClass.VOORRAAD_SAVE(voorraad);
+                MainView(View.EditVoorraadMenu);
+            }
+            else
+            {
+                MainView(View.EditVoorraadMenu);
+            }
+        }
+
         static void ShowVoorraad(long id = 0)
         {
+            if (exit) { return; }
             //Voorraad laten zien
             string[] alignment = {
                 "-10", //ID
@@ -414,7 +811,14 @@ namespace Gimpies
             Menu,
             BekijkVoorraad,
             BekijkEditVoorraadList,
+            ArtikelToevoegen,
+            ArtikelVerwijderen,
+            EditVoorraadMenu,
             EditVoorraad,
+            EditAantal,
+            EditBeschrijving,
+            EditMaat,
+            EditPrijs,
             EXIT
         }
     }

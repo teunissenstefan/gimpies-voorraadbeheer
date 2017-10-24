@@ -36,6 +36,7 @@ namespace Gimpies
                 newVoorraad.ItemMaat = Int64.Parse(indexes[3]);
                 voorraad.Add(newVoorraad);
             }
+            voorraad = voorraad.OrderBy(p => p.ItemID).ToList();
             return voorraad;
         }
         public void VOORRAAD_SAVE(List<Voorraad> voorraad)
@@ -44,6 +45,7 @@ namespace Gimpies
             {
                 foreach (Voorraad s in voorraad)
                 {
+                    //MessageBox.Show("ID:"+s.ItemID + "\nDESC:"+s.ItemDesc);
                     tw.WriteLine(s.ItemID + "," + s.ItemDesc + "," + s.ItemAmount + "," + s.ItemMaat + "," + s.ItemPrijs);
                 }
             }
