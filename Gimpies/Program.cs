@@ -39,13 +39,15 @@ namespace Gimpies
         {
             if (args.Length>0)
             {
-                if (args[0] == "gui")
+                if (args[0] == "-gui")
                 {
                     //Console verbergen
                     var handle = GetConsoleWindow();
                     ShowWindow(handle, SW_HIDE);
                     //Form starten
                     Application.EnableVisualStyles();
+                    //Login loginForm = new Login();
+                    //loginForm.Show();
                     Application.Run(new Login());
                 }
                 else
@@ -76,10 +78,6 @@ namespace Gimpies
             if (_username != string.Empty)
             {
                 string headerText = "Welkom " + globalClass.FIRST_CHAR_UC(_username) + "! " + menuKey.ToString() + "=Menu " + backKey.ToString() + "=Terug";
-                string hr = "##################################################################";
-                //Welkom bericht in het midden:
-                //Console.WriteLine(String.Format("{0," + ((Console.WindowWidth / 2) + (headerText.Length / 2)) + "}", headerText)); 
-                //Console.WriteLine(String.Format("{0," + ((Console.WindowWidth / 2) + (hr.Length / 2)) + "}", hr));
                 Console.WriteLine(headerText);
                 WindowLine();
                 Console.Write("\n");
@@ -165,7 +163,7 @@ namespace Gimpies
             if (exit) { return; }
             if (username == string.Empty)
             {
-                DisplayLoginUsername();
+                DisplayLoginUsername(tries);
             }
             else
             {
@@ -371,6 +369,7 @@ namespace Gimpies
         }
         
         static void ArtikelVerwijderen()
+
         {
             if (exit) { return; }
             Header("Artikel verwijderen");
@@ -392,6 +391,12 @@ namespace Gimpies
             else if (keuze == string.Empty)
             {
                 MainView(View.ArtikelVerwijderen);
+            }
+            else if (keuze == "*")
+            {
+                voorraad = new List<Voorraad>();
+                globalClass.VOORRAAD_SAVE(voorraad);
+                MainView(View.EditVoorraadMenu);
             }
             else
             {
@@ -669,7 +674,7 @@ namespace Gimpies
                             index++;
                             break;
                         case 3:
-                            temp.ItemPrijs = input;
+                            temp.ItemPrijs = input.Replace(',','.');
                             invulLoop = true;
                             opslaan = true;
                             break;

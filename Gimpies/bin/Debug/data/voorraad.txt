@@ -1,0 +1,10 @@
+1,Adidos,500,40,99.99
+2,Bepis,5000000,39,00.01
+3,RED,500,42,39
+4,aaaaaaaaaaaa,2,2,39.99
+5,Aaaaaaaaaaaaaaaaaaaaaaaaa,20,20,39.00
+6,Pizza,12,40,4
+7,aaaaaaaaaaaa,120,34,0
+8,asdasdasd,234324,132,23423
+9,PIZZA,420,420,4.20
+10,aaaaaaaaa,1111111111,2222222232,1.20

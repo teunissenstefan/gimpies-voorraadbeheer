@@ -16,10 +16,14 @@ namespace Gimpies
         }
         public string FILE_LOCATION()
         {
-            return "voorraad.txt";
+            return "data/voorraad.txt";
         }
         public string FIRST_CHAR_UC(string text)
         {
+            if(text == string.Empty)
+            {
+                return text;
+            }
             return text.First().ToString().ToUpper() + String.Join("", text.Skip(1));
         }
         public List<Voorraad> VOORRAAD_LOAD()
@@ -45,7 +49,6 @@ namespace Gimpies
             {
                 foreach (Voorraad s in voorraad)
                 {
-                    //MessageBox.Show("ID:"+s.ItemID + "\nDESC:"+s.ItemDesc);
                     tw.WriteLine(s.ItemID + "," + s.ItemDesc + "," + s.ItemAmount + "," + s.ItemMaat + "," + s.ItemPrijs);
                 }
             }
