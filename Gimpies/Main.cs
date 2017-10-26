@@ -11,14 +11,13 @@ using System.Windows.Forms;
 
 namespace Gimpies
 {
-    public partial class Main : Form
+    public partial class Main : MForm
     {
         Global globalClass = new Global();
 
         List<Voorraad> voorraad = new List<Voorraad>();
         string naam = "";
         Form loginForm;
-        bool closeApp = true;
         public Main(string _naam, Form _loginForm)
         {
             InitializeComponent();
@@ -31,6 +30,7 @@ namespace Gimpies
         {
             this.Text = "Voorraadbeheer | Welkom: "+naam+"!";
             Populate();
+            this.CloseAppOnClose = true;
         }
 
         private void Populate(string zoekterm = "")
@@ -38,7 +38,7 @@ namespace Gimpies
             artikelenList.Items.Clear();
             if (zoekterm == "")
             {
-                voorraad = globalClass.VOORRAAD_LOAD();
+                voorraad = globalClass.MysqlServerLoadArtikelen();
                 foreach (var row in voorraad)
                 {
                     var item = new ListViewItem(row.ItemID.ToString());
@@ -73,8 +73,21 @@ namespace Gimpies
 
         private void uitloggenToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            List<Form> oForms = new List<Form>();
+            foreach (Form openForm in Application.OpenForms)
+            {
+                if (openForm.Name != "Login" && openForm.Name != "Main")
+                {
+                    oForms.Add(openForm);
+                }
+
+            }
+            foreach (Form openForm in oForms)
+            {
+                openForm.Close();
+            }
             loginForm.Show();
-            closeApp = false;
+            this.CloseAppOnClose = false;
             this.Close();
         }
 
@@ -100,7 +113,7 @@ namespace Gimpies
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (closeApp)
+            if (this.CloseAppOnClose)
             {
                 Application.Exit();
             }
@@ -116,21 +129,7 @@ namespace Gimpies
         public void ArtikelToevoegen(string beschrijving, string aantal, string prijs, string maat)
         {
             //Toevoegen en list repopulaten
-            Voorraad newVoorraad = new Voorraad();
-            if (voorraad.Count <= 0)
-            {
-                newVoorraad.ItemID = 1;
-            }
-            else
-            {
-                newVoorraad.ItemID = voorraad[voorraad.Count - 1].ItemID + 1;
-            }
-            newVoorraad.ItemDesc = (beschrijving);
-            newVoorraad.ItemAmount = Int64.Parse(aantal);
-            newVoorraad.ItemPrijs = (prijs.Replace(',', '.'));
-            newVoorraad.ItemMaat = Int64.Parse(maat);
-            voorraad.Add(newVoorraad);
-            globalClass.VOORRAAD_SAVE(voorraad);
+            globalClass.MysqlServerInsert(beschrijving,aantal,prijs,maat);
             Populate();
         }
 
@@ -140,13 +139,7 @@ namespace Gimpies
             bool itemBestaat = voorraad.Any(r => r.ItemID == id);
             if (itemBestaat)
             {
-                var item = voorraad.Find(r => r.ItemID == id);
-                item.ItemDesc = beschrijving;
-                item.ItemAmount = Int64.Parse(aantal);
-                item.ItemPrijs = prijs.Replace(',','.');
-                item.ItemMaat = Int64.Parse(maat);
-
-                globalClass.VOORRAAD_SAVE(voorraad); 
+                globalClass.MysqlServerUpdate(id,beschrijving,aantal,prijs,maat);
                 Populate();
             }
             else
@@ -171,6 +164,12 @@ namespace Gimpies
                 return item;
             }
             return new Voorraad();
+        }
+
+        private void Main_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            
+            
         }
     }
 }

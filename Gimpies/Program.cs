@@ -230,7 +230,7 @@ namespace Gimpies
         {
             if (exit) { return; }
             Header("Bekijk voorraad");
-            voorraad = globalClass.VOORRAAD_LOAD();
+            voorraad = globalClass.MysqlServerLoadArtikelen();
             ShowVoorraad();
             Console.ReadKey();
             MainView(View.Menu);
@@ -240,7 +240,7 @@ namespace Gimpies
         {
             if (exit) { return; }
             Header("Voorraad bewerken");
-            voorraad = globalClass.VOORRAAD_LOAD();
+            voorraad = globalClass.MysqlServerLoadArtikelen();
 
             ShowVoorraad();
             WindowLine();
@@ -313,6 +313,7 @@ namespace Gimpies
         {
             if (exit) { return; }
             Header("Bewerken");
+            voorraad = globalClass.MysqlServerLoadArtikelen();
             bool itemBestaat = voorraad.Any(r => r.ItemID == id);
             if (itemBestaat)
             {
@@ -374,7 +375,7 @@ namespace Gimpies
             if (exit) { return; }
             Header("Artikel verwijderen");
 
-            voorraad = globalClass.VOORRAAD_LOAD();
+            voorraad = globalClass.MysqlServerLoadArtikelen();
 
             ShowVoorraad();
             WindowLine();
@@ -395,7 +396,7 @@ namespace Gimpies
             else if (keuze == "*")
             {
                 voorraad = new List<Voorraad>();
-                globalClass.VOORRAAD_SAVE(voorraad);
+                globalClass.MysqlServerDelete(-1);
                 MainView(View.EditVoorraadMenu);
             }
             else
@@ -403,8 +404,7 @@ namespace Gimpies
                 bool bestaatItem = voorraad.Any(r => r.ItemID == Int64.Parse(keuze));
                 if (bestaatItem)
                 {
-                    voorraad.RemoveAll(x => x.ItemID == Int64.Parse(keuze));
-                    globalClass.VOORRAAD_SAVE(voorraad);
+                    globalClass.MysqlServerDelete(Int64.Parse(keuze));
                     MainView(View.ArtikelVerwijderen, keuze);
                 }
                 else
@@ -447,16 +447,15 @@ namespace Gimpies
                 {
                     if (item.ItemAmount + Int64.Parse(input) < 0)
                     {
-                        Console.WriteLine("Er kunnen er niet meer weg zijn dan dat er beschikbaar is. Er zijn er maar " + item.ItemAmount + " beschikbaar.");
+                        Console.WriteLine("\nEr kunnen er niet meer weg zijn dan dat er beschikbaar is. Er zijn er maar " + item.ItemAmount + " beschikbaar.");
                         Console.ReadLine();
                         MainView(View.EditAantal, id.ToString());
                     }
                     else
                     {
-                        //Veranderen in lokale lijst
-                        item.ItemAmount += Int64.Parse(input);
-                        //Lokale lijst opslaan in lijst
-                        globalClass.VOORRAAD_SAVE(voorraad);
+                        item.ItemAmount = item.ItemAmount + Int64.Parse(input);
+                        //Verwijderen uit de database
+                        globalClass.MysqlServerUpdate(id,item.ItemDesc,item.ItemAmount.ToString(),item.ItemPrijs,item.ItemMaat.ToString()); ;
                         MainView(View.EditVoorraad, id.ToString());
                     }
                 }
@@ -498,10 +497,8 @@ namespace Gimpies
                 }
                 else
                 {
-                    //Veranderen in lokale lijst
-                    item.ItemDesc = input;
-                    //Lokale lijst opslaan in lijst
-                    globalClass.VOORRAAD_SAVE(voorraad);
+                    //Updaten op de server
+                    globalClass.MysqlServerUpdate(id,input,item.ItemAmount.ToString(),item.ItemPrijs,item.ItemMaat.ToString());
                     MainView(View.EditVoorraad, id.ToString());
                 }
             }
@@ -521,7 +518,7 @@ namespace Gimpies
             if (itemBestaat)
             {
                 var item = voorraad.Find(r => r.ItemID == id);
-                Header(item.ItemDesc + " maat bewerken");
+                Header(item.ItemMaat + " maat bewerken");
                 ShowVoorraad(id);
                 WindowLine();
                 Console.WriteLine("Huidige maat: " + item.ItemMaat);
@@ -542,10 +539,8 @@ namespace Gimpies
                 }
                 else
                 {
-                    //Veranderen in lokale lijst
-                    item.ItemMaat = Int64.Parse(input);
-                    //Lokale lijst opslaan in lijst
-                    globalClass.VOORRAAD_SAVE(voorraad);
+                    //Updaten op de database
+                    globalClass.MysqlServerUpdate(id,item.ItemDesc,item.ItemAmount.ToString(),item.ItemPrijs,input);
                     MainView(View.EditVoorraad, id.ToString());
                 }
             }
@@ -565,7 +560,7 @@ namespace Gimpies
             if (itemBestaat)
             {
                 var item = voorraad.Find(r => r.ItemID == id);
-                Header(item.ItemDesc + " prijs bewerken");
+                Header(item.ItemPrijs + " prijs bewerken");
                 ShowVoorraad(id);
                 WindowLine();
                 Console.WriteLine("Huidige prijs: " + item.ItemPrijs);
@@ -586,12 +581,8 @@ namespace Gimpies
                 }
                 else
                 {
-                    // , vervangen door .
-                    input = input.Replace(',', '.');
-                    //Veranderen in lokale lijst
-                    item.ItemPrijs = input;
                     //Lokale lijst opslaan in lijst
-                    globalClass.VOORRAAD_SAVE(voorraad);
+                    globalClass.MysqlServerUpdate(id,item.ItemDesc,item.ItemAmount.ToString(),input,item.ItemMaat.ToString());
                     MainView(View.EditVoorraad, id.ToString());
                 }
             }
@@ -606,7 +597,7 @@ namespace Gimpies
         static void ArtikelToevoegen()
         {
             if (exit) { return; }
-            voorraad = globalClass.VOORRAAD_LOAD();
+            voorraad = globalClass.MysqlServerLoadArtikelen();
             bool invulLoop = false;
             bool opslaan = false;
             int index = 0;
@@ -690,7 +681,7 @@ namespace Gimpies
                 //Opslaan in lokale lijst
                 voorraad.Add(temp);
                 //Lokale lijst opslaan in lijst
-                globalClass.VOORRAAD_SAVE(voorraad);
+                globalClass.MysqlServerInsert(temp.ItemDesc,temp.ItemAmount.ToString(),temp.ItemPrijs,temp.ItemMaat.ToString());
                 MainView(View.EditVoorraadMenu);
             }
             else
