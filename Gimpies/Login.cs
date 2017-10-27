@@ -17,9 +17,11 @@ namespace Gimpies
             InitializeComponent();
         }
 
+        int MaxLogins = 0;
         Global globalClass = new Global();
         private void Login_Load(object sender, EventArgs e)
         {
+            MaxLogins = globalClass.MAX_LOGIN_TRIES();
             logo.ImageLocation = "data/logo.png";
         }
 
@@ -35,6 +37,7 @@ namespace Gimpies
             {
                 //Gebruikersnaam meenemen naar main form
                 string _gebruikersnaam = globalClass.FIRST_CHAR_UC(gebruikersnaamTxtBox.Text);
+                globalClass.CheckIn(_gebruikersnaam);
 
                 currLogin = 1;
                 gebruikersnaamTxtBox.Text = "";
@@ -47,7 +50,7 @@ namespace Gimpies
             else
             {
                 //Max 3 keer proberen
-                if (currLogin >= globalClass.MAX_LOGIN_TRIES())
+                if (currLogin >= MaxLogins)
                 {
                     MessageBox.Show("Wachtwoord fout.\nEr is te vaak geprobeerd in te loggen");
                     gebruikersnaamTxtBox.Enabled = false;
@@ -57,7 +60,7 @@ namespace Gimpies
                 else
                 {
                     currLogin++;
-                    MessageBox.Show("Wachtwoord fout, nog "+ (globalClass.MAX_LOGIN_TRIES()-currLogin+1) +" keer over");
+                    MessageBox.Show("Wachtwoord fout, nog "+ (MaxLogins - currLogin+1) +" keer over");
                     gebruikersnaamTxtBox.Text = "";
                     wachtwoordTxtBox.Text = "";
                     gebruikersnaamTxtBox.Focus();

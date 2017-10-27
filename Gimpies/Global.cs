@@ -14,17 +14,33 @@ namespace Gimpies
     class Global
     {
         public int MAX_LOGIN_TRIES()
-        {
-            return 3;
+        {//3
+            foreach (var gvar in GetGlobalVars())
+            {
+                if (gvar.var.ToString() == "MAX_LOGIN_TRIES")
+                {
+                    return Int32.Parse(gvar.value);
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            return 30;
         }
         public string ConnectionString()
         {
-            return "server=localhost;user id=root;password=;database=gimpies;";
+            return File.ReadAllText(CONNECTION_STRING_LOCATION());
+            //return "server=localhost;user id=root;password=;database=gimpies;";
         }
-        [System.Obsolete("Gebruik de Mysql server in plaats van het bestand",true)]
+        [System.Obsolete("Gebruik de Mysql server in plaats van het bestand.",true)]
         public string FILE_LOCATION()
         {
             return "data/voorraad.txt";
+        }
+        public string CONNECTION_STRING_LOCATION()
+        {
+            return "data/conn.txt";
         }
         public string FIRST_CHAR_UC(string text)
         {
@@ -71,7 +87,7 @@ namespace Gimpies
                 return new List<Voorraad>();
             }
         }
-        [System.Obsolete("VOORRAAD_LOAD is deprecated, gebruik MysqlServerLoad.",true)]
+        [System.Obsolete("VOORRAAD_LOAD is deprecated, gebruik MysqlServerLoadArtikelen.",true)]
         public List<Voorraad> VOORRAAD_LOAD()
         {
             List<Voorraad> voorraad = new List<Voorraad>();
@@ -185,33 +201,76 @@ namespace Gimpies
         }
         public bool LOGIN(string wachtwoord)
         {
-            if (wachtwoord == "1")
+            string ww = string.Empty;
+            foreach (var gvar in GetGlobalVars())
+            {
+                if (gvar.var.ToString() == "WACHTWOORD")
+                {
+                    ww = gvar.value;
+                }
+                else
+                {
+                    ww = string.Empty;
+                }
+            }
+            if (ww != string.Empty && wachtwoord == ww)
             {
                 return true;
             }
             return false;
         }
-        private List<Tuple<string,string>> GetGlobalVars()
+        private void Log(bool inlog,string medewerker)
         {
             try
             {
-                List<Tuple<string, string>> globalVars = new List<Tuple<string, string>>();
+                using (var connection = new MySqlConnection(ConnectionString()))
+                {
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "INSERT INTO log (medewerker,inlog,tijd) VALUES (@medewerker,@inlog,@tijd)";
+                        command.Parameters.AddWithValue("@medewerker", medewerker);
+                        command.Parameters.AddWithValue("@inlog", inlog);
+                        command.Parameters.AddWithValue("@tijd", DateTime.Now);
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Kan niet loggen: " + ex.ToString());
+            }
+        }
+        public void CheckIn(string medewerker)
+        {
+            Log(true,medewerker);
+        }
+        public void CheckOut(string medewerker)
+        {
+            Log(false,medewerker);
+        }
+        private List<GlobalVars> GetGlobalVars()
+        {
+            try
+            {
+                List<GlobalVars> globalVars = new List<GlobalVars>();
 
                 using (var connection = new MySqlConnection(ConnectionString()))
                 {
                     connection.Open();
                     using (var command = connection.CreateCommand())
                     {
-                        command.CommandText = "SELECT * FROM artikelen";
+                        command.CommandText = "SELECT * FROM globalvars";
                         MySqlDataAdapter adap = new MySqlDataAdapter(command);
                         DataSet ds = new DataSet();
                         adap.Fill(ds);
                         foreach (DataRowView resultRow in ds.Tables[0].DefaultView)
                         {
-                            List<Voorraad> t = VOORRAAD_LOAD();
-                            //De vars opslaan in de tuple
-                            //////////////////
-                            
+                            GlobalVars gvar = new GlobalVars();
+                            gvar.var = resultRow.Row["var"].ToString();
+                            gvar.value = resultRow.Row["value"].ToString();
+                            globalVars.Add(gvar);
                         }
                     }
                     connection.Close();
@@ -221,7 +280,7 @@ namespace Gimpies
             catch (Exception ex)
             {
                 MessageBox.Show("Kan niet verbinden met de database: " + ex.ToString());
-                List<Tuple<string, string>> globalVars = new List<Tuple<string, string>>();
+                List<GlobalVars> globalVars = new List<GlobalVars>();
                 return globalVars;
             }
         }

@@ -32,11 +32,13 @@ namespace Gimpies
         static bool exit = false;
 
         const char horPipe = (char)9552;
+        static int MaxLogins = 0;
 
         static Global globalClass = new Global();
-
+        //Main
         static void Main(string[] args)
         {
+            MaxLogins = globalClass.MAX_LOGIN_TRIES();
             if (args.Length>0)
             {
                 if (args[0] == "-gui")
@@ -60,7 +62,7 @@ namespace Gimpies
                 MainView(View.Login);
             }
         }
-
+        //Titel en alles aan de bovenkant
         static void Header(string _title = "")
         {
             if (exit) { return; }
@@ -83,7 +85,7 @@ namespace Gimpies
                 Console.Write("\n");
             }
         }
-
+        //View controller
         static void MainView(View view, string prevInput = "")
         {
             if (exit) { return; }
@@ -149,7 +151,7 @@ namespace Gimpies
                 MainView(view);
             }
         }
-
+        //Naam gedeelte van de login
         static void DisplayLoginUsername(int tries = 0)
         {
             if (exit) { return; }
@@ -157,7 +159,7 @@ namespace Gimpies
             Console.Write("Username: ");
             DisplayLoginPassword(tries, ReadLine());
         }
-
+        //Wachtwoord gedeelte van de login
         static void DisplayLoginPassword(int tries = 0, string username = "")
         {
             if (exit) { return; }
@@ -171,13 +173,17 @@ namespace Gimpies
                 if (globalClass.LOGIN(ReadPassword()))
                 {
                     _username = username;
+                    globalClass.CheckIn(username);
                     MainView(View.Menu);
                 }
                 else
                 {
                     tries = tries + 1;
-                    if (tries < globalClass.MAX_LOGIN_TRIES())
+                    if (tries < MaxLogins)
                     {
+                        Console.Clear();
+                        Console.WriteLine("Wachtwoord fout");
+                        Console.ReadKey();
                         DisplayLoginUsername(tries);
                     }
                     else
@@ -189,7 +195,7 @@ namespace Gimpies
                 }
             }
         }
-
+        //Menu laten zien
         static void DisplayMenu(string input)
         {
             if (exit) { return; }
@@ -213,11 +219,13 @@ namespace Gimpies
             }
             else if (input == "9")
             {
+                globalClass.CheckOut(_username);
                 _username = "";
                 MainView(View.Login);
             }
             else if (input == "0")
             {
+                globalClass.CheckOut(_username);
                 MainView(View.EXIT);
             }
             else
@@ -225,7 +233,7 @@ namespace Gimpies
                 MainView(View.Menu);
             }
         }
-
+        //Voorraad laten zien
         static void DisplayVoorraad()
         {
             if (exit) { return; }
@@ -235,7 +243,7 @@ namespace Gimpies
             Console.ReadKey();
             MainView(View.Menu);
         }
-
+        //Lijst waaruit je kiest welk artikel je wilt aanpassen
         static void VoorraadBewerkenLijst()
         {
             if (exit) { return; }
@@ -273,7 +281,7 @@ namespace Gimpies
                 }
             }
         }
-
+        //Voorraad menu om artikelen toe te voegen, bewerken of verijderen
         static void VoorraadMenu()
         {
             if (exit) { return; }
@@ -308,7 +316,7 @@ namespace Gimpies
                 MainView(View.EditVoorraadMenu);
             }
         }
-
+        //Menu waar je kiest wat je wilt aanpassen van het gekozen artikel
         static void VoorraadBewerken(long id)
         {
             if (exit) { return; }
@@ -368,7 +376,7 @@ namespace Gimpies
                 MainView(View.BekijkEditVoorraadList);
             }
         }
-        
+        //Artikel verwijderen
         static void ArtikelVerwijderen()
 
         {
@@ -415,7 +423,7 @@ namespace Gimpies
                 }
             }
         }
-
+        //Aantal van het gekozen artikel aanpassen
         static void BewerkAantal(long id)
         {
             if (exit) { return; }
@@ -467,7 +475,7 @@ namespace Gimpies
                 MainView(View.BekijkEditVoorraadList);
             }
         }
-
+        //Beschrijving van het gekozen artikel aanpassen
         static void BewerkBeschrijving(long id)
         {
             if (exit) { return; }
@@ -509,7 +517,7 @@ namespace Gimpies
                 MainView(View.BekijkEditVoorraadList);
             }
         }
-
+        //Maat van het gekozen artikel aanpassen
         static void BewerkMaat(long id)
         {
             if (exit) { return; }
@@ -551,7 +559,7 @@ namespace Gimpies
                 MainView(View.BekijkEditVoorraadList);
             }
         }
-
+        //Prijs van het gekozen artikel aanpassen
         static void BewerkPrijs(long id)
         {
             if (exit) { return; }
@@ -593,7 +601,7 @@ namespace Gimpies
                 MainView(View.BekijkEditVoorraadList);
             }
         }
-
+        //Artikel toevoegen
         static void ArtikelToevoegen()
         {
             if (exit) { return; }
@@ -689,7 +697,7 @@ namespace Gimpies
                 MainView(View.EditVoorraadMenu);
             }
         }
-
+        //Alleen de voorraad laten zien
         static void ShowVoorraad(long id = 0)
         {
             if (exit) { return; }
@@ -733,11 +741,12 @@ namespace Gimpies
                 }
             }
         }
-
+        //De horizontale lijn
         static void WindowLine()
         {
             Console.Write(new string(horPipe, Console.WindowWidth));
         }
+        //ReadLine met ReadKey zodat je kan typen maar ook op een knop drukken
         static string ReadLine()
         {
             string input = "";
@@ -769,6 +778,7 @@ namespace Gimpies
             } while (key.Key != ConsoleKey.Enter);
             return input;
         }
+        //ReadPassword met ReadKey zodat je kan typen maar ook op een knop drukken
         static string ReadPassword()
         {
             string input = "";
@@ -800,7 +810,7 @@ namespace Gimpies
             } while (key.Key != ConsoleKey.Enter);
             return input;
         }
-        
+        //De enumerator met alle mogelijke Views
         enum View
         {
             Login,

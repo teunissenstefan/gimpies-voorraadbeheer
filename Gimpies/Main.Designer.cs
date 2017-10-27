@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.bestandToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.uitloggenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -43,6 +44,10 @@
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.artikelenContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.bewerkenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.verwijderenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.artikelToevoegenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -53,6 +58,7 @@
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.panel2.SuspendLayout();
+            this.artikelenContextMenu.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -65,6 +71,7 @@
             this.menuStrip1.Size = new System.Drawing.Size(854, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
+            this.menuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStrip1_ItemClicked);
             // 
             // bestandToolStripMenuItem
             // 
@@ -144,6 +151,7 @@
             this.columnHeader3,
             this.columnHeader4,
             this.columnHeader5});
+            this.artikelenList.ContextMenuStrip = this.artikelenContextMenu;
             this.artikelenList.Dock = System.Windows.Forms.DockStyle.Fill;
             this.artikelenList.FullRowSelect = true;
             this.artikelenList.Location = new System.Drawing.Point(0, 0);
@@ -176,6 +184,34 @@
             // columnHeader5
             // 
             this.columnHeader5.Text = "Prijs";
+            // 
+            // artikelenContextMenu
+            // 
+            this.artikelenContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.bewerkenToolStripMenuItem,
+            this.toolStripSeparator2,
+            this.verwijderenToolStripMenuItem});
+            this.artikelenContextMenu.Name = "artikelenContextMenu";
+            this.artikelenContextMenu.Size = new System.Drawing.Size(136, 54);
+            // 
+            // bewerkenToolStripMenuItem
+            // 
+            this.bewerkenToolStripMenuItem.Name = "bewerkenToolStripMenuItem";
+            this.bewerkenToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.bewerkenToolStripMenuItem.Text = "Bewerken";
+            this.bewerkenToolStripMenuItem.Click += new System.EventHandler(this.bewerkenToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(132, 6);
+            // 
+            // verwijderenToolStripMenuItem
+            // 
+            this.verwijderenToolStripMenuItem.Name = "verwijderenToolStripMenuItem";
+            this.verwijderenToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.verwijderenToolStripMenuItem.Text = "Verwijderen";
+            this.verwijderenToolStripMenuItem.Click += new System.EventHandler(this.verwijderenToolStripMenuItem_Click);
             // 
             // menuStrip2
             // 
@@ -241,6 +277,7 @@
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.panel2.ResumeLayout(false);
+            this.artikelenContextMenu.ResumeLayout(false);
             this.menuStrip2.ResumeLayout(false);
             this.menuStrip2.PerformLayout();
             this.ResumeLayout(false);
@@ -270,5 +307,9 @@
         private System.Windows.Forms.ToolStripMenuItem artikelToevoegenToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripTextBox searchTextbox;
+        private System.Windows.Forms.ContextMenuStrip artikelenContextMenu;
+        private System.Windows.Forms.ToolStripMenuItem bewerkenToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem verwijderenToolStripMenuItem;
     }
 }

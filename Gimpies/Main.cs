@@ -111,8 +111,14 @@ namespace Gimpies
             searchTextbox.SelectAll();
         }
 
+        int closeAmount = 1;
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (closeAmount == 1)
+            { 
+                globalClass.CheckOut(naam);
+            }
+            closeAmount--;
             if (this.CloseAppOnClose)
             {
                 Application.Exit();
@@ -169,7 +175,24 @@ namespace Gimpies
         private void Main_FormClosed(object sender, FormClosedEventArgs e)
         {
             
-            
+        }
+
+        private void bewerkenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Gimpies.ArtikelForm artikelForm = new Gimpies.ArtikelForm(this, Int64.Parse(artikelenList.SelectedItems[0].Text));
+            artikelForm.Show();
+            artikelForm.TopMost = true;
+        }
+
+        private void verwijderenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            globalClass.MysqlServerDelete(Int64.Parse(artikelenList.SelectedItems[0].Text));
+            Populate();
+        }
+
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
         }
     }
 }

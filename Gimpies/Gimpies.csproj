@@ -58,6 +58,7 @@
       <DependentUpon>ArtikelForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Global.cs" />
+    <Compile Include="GlobalVars.cs" />
     <Compile Include="Login.cs">
       <SubType>Form</SubType>
     </Compile>
