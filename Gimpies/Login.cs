@@ -33,17 +33,21 @@ namespace Gimpies
         int currLogin = 1;
         private void LoginBtn_Click(object sender, EventArgs e)
         {
-            if (globalClass.LOGIN(wachtwoordTxtBox.Text))
+            Werknemer tmpWerknemer = globalClass.GetWerknemer(wachtwoordTxtBox.Text, gebruikersnaamTxtBox.Text);
+            //if (globalClass.LOGIN(wachtwoordTxtBox.Text, gebruikersnaamTxtBox.Text))
+            if (tmpWerknemer.Id != -1)
             {
                 //Gebruikersnaam meenemen naar main form
                 string _gebruikersnaam = globalClass.FIRST_CHAR_UC(gebruikersnaamTxtBox.Text);
-                globalClass.CheckIn(_gebruikersnaam);
+                globalClass.CheckIn(tmpWerknemer.Id);
+
+                List<Werknemer> werknemersList = globalClass.GetWerknemers();
 
                 currLogin = 1;
                 gebruikersnaamTxtBox.Text = "";
                 wachtwoordTxtBox.Text = "";
                 gebruikersnaamTxtBox.Focus();
-                Main mainForm = new Main(_gebruikersnaam, this);
+                Main mainForm = new Main(_gebruikersnaam, this, tmpWerknemer, globalClass.GetWerknemers());
                 mainForm.Show();
                 this.Hide();
             }
@@ -52,7 +56,7 @@ namespace Gimpies
                 //Max 3 keer proberen
                 if (currLogin >= MaxLogins)
                 {
-                    MessageBox.Show("Wachtwoord fout.\nEr is te vaak geprobeerd in te loggen");
+                    MessageBox.Show("Kon niet inloggen.\nEr is te vaak geprobeerd in te loggen");
                     gebruikersnaamTxtBox.Enabled = false;
                     wachtwoordTxtBox.Enabled = false;
                     LoginBtn.Enabled = false;
@@ -60,12 +64,22 @@ namespace Gimpies
                 else
                 {
                     currLogin++;
-                    MessageBox.Show("Wachtwoord fout, nog "+ (MaxLogins - currLogin+1) +" keer over");
+                    MessageBox.Show("Kon niet inloggen, nog "+ (MaxLogins - currLogin+1) +" keer over");
                     gebruikersnaamTxtBox.Text = "";
                     wachtwoordTxtBox.Text = "";
                     gebruikersnaamTxtBox.Focus();
                 }
             }
+        }
+
+        private void logo_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void gebruikersnaamTxtBox_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

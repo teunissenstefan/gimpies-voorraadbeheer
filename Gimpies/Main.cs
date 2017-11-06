@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace Gimpies
 {
@@ -15,26 +16,131 @@ namespace Gimpies
     {
         Global globalClass = new Global();
 
-        List<Voorraad> voorraad = new List<Voorraad>();
+        public List<Voorraad> voorraad = new List<Voorraad>();
+        public List<Werknemer> werknemers = new List<Werknemer>();
+        public List<Sale> sales = new List<Sale>();
+        public Werknemer loggedInWerknemer;
         string naam = "";
+        bool isAdmin = false;
         Form loginForm;
-        public Main(string _naam, Form _loginForm)
+        
+        public Main(string _naam, Form _loginForm, Werknemer loggedInWerknemer, List<Werknemer> werknemersList)
         {
             InitializeComponent();
 
             naam = _naam;
             loginForm = _loginForm;
+            isAdmin = (loggedInWerknemer.Rank == 1) ? true : false;
+            this.werknemers = werknemersList;
+            this.loggedInWerknemer = loggedInWerknemer;
         }
 
         private void Main_Load(object sender, EventArgs e)
         {
-            this.Text = "Voorraadbeheer | Welkom: "+naam+"!";
+            this.Text = "Voorraadbeheer | Welkom: " + naam + "!" + ((isAdmin) ? " Admin" : "");
             Populate();
+            artikelenList.Focus();
+            tabControl1.ItemSize = new Size(tabControl1.ItemSize.Width,25);
             this.CloseAppOnClose = true;
         }
 
-        private void Populate(string zoekterm = "")
+        private void LoadVoorraadChart()
         {
+            chart1.Series.Clear();
+            Series VerkochteSchoenenSeries = new Series
+            {
+                Name = "Verkochte schoenen",
+                Color = System.Drawing.Color.Green,
+                IsVisibleInLegend = false,
+                IsXValueIndexed = true,
+                ChartType = SeriesChartType.Column
+            };
+
+            this.chart1.Series.Add(VerkochteSchoenenSeries);
+            
+            foreach (Voorraad artikel in voorraad)
+            {
+                VerkochteSchoenenSeries.Points.AddXY(artikel.ItemDesc, artikel.ItemAmount);
+            }
+
+            chart1.Invalidate();
+            chart1.ResetAutoValues();
+        }
+
+
+        private void LoadStatistischeGegevens()
+        {
+            if (isAdmin)
+            {
+                //Statistieken van iedereen weergeven
+                
+                //SALES uit database halen
+                //foreach SALE 
+                //  1.  Aantal bij totaalVerkocht doen
+                //  2.  Aantal eur bij totaalVerkochtEuro doen
+                //  3.  In listview stoppen \/
+                //      Artikel naam krijgen met List.Find(); en dan .ItemDesc
+                //      Medewerker naam krijgen met List.Find(); en dan .Username
+                //endforeach
+            }
+            else
+            {
+                //Statistieken van mezelf weergeven
+
+
+                //SALES WHERE loggedInMedewerker uit database halen
+                //foreach SALE 
+                //  1.  Aantal bij totaalVerkocht doen
+                //  2.  Aantal eur bij totaalVerkochtEuro doen
+                //  3.  In listview stoppen \/
+                //      Artikel naam krijgen met List.Find(); en dan .ItemDesc
+                //      Medewerker naam krijgen met loggedInMedewerker.Username
+                //endforeach
+            }
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.F))
+            {
+                //Ctrl+F = zoekbox focussen
+                searchTextBox.Focus();
+                return true;
+            }
+            if (keyData == (Keys.Control | Keys.T) && isAdmin)
+            {
+                //Admin:        Ctrl+T = Nieuw artikel toevoegen
+                //Gebruiker:    Ctrl+T = Verkoop registreren
+                NieuwArtikelForm();
+                if (isAdmin)
+                {
+                    NieuwArtikelForm();
+                }
+                else
+                {
+                    VerkoopRegistrerenForm();
+                }
+                return true;
+            }
+            if (keyData == (Keys.Alt | Keys.Q))
+            {
+                //Alt+Q = Afsluiten
+                Application.Exit();
+                return true;
+            }
+            if (keyData == (Keys.None | Keys.Delete))
+            {
+                if (artikelenList.Focused)
+                {
+                    VerwijderArtikel();
+                }
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        public void Populate(string zoekterm = "")
+        { 
             artikelenList.Items.Clear();
             if (zoekterm == "")
             {
@@ -44,6 +150,7 @@ namespace Gimpies
                     var item = new ListViewItem(row.ItemID.ToString());
                     item.SubItems.Add(row.ItemDesc.ToString());
                     item.SubItems.Add(row.ItemAmount.ToString());
+                    item.SubItems.Add(row.ItemVerkocht.ToString());
                     item.SubItems.Add(row.ItemMaat.ToString());
                     item.SubItems.Add(row.ItemPrijs.ToString());
                     artikelenList.Items.Add(item);
@@ -52,8 +159,7 @@ namespace Gimpies
             else
             {
                 //zoeken
-                CultureInfo culture = CultureInfo.CurrentCulture;
-                var zoekQuery = voorraad.FindAll(r => culture.CompareInfo.IndexOf(r.ItemDesc, zoekterm,CompareOptions.IgnoreCase) >= 0);
+                var zoekQuery = voorraad.FindAll(r => r.ItemDesc.ToLower().Contains(zoekterm.ToLower()));
                 foreach (var row in zoekQuery)
                 {
                     var item = new ListViewItem(row.ItemID.ToString());
@@ -64,6 +170,8 @@ namespace Gimpies
                     artikelenList.Items.Add(item);
                 }
             }
+            LoadVoorraadChart();
+            LoadStatistischeGegevens();
         }
 
         private void afsluitenToolStripMenuItem_Click(object sender, EventArgs e)
@@ -91,37 +199,18 @@ namespace Gimpies
             this.Close();
         }
 
-        private void toolStripTextBox1_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                //Zoeken in voorraad en dan tijdelijke lijst maken
-                searchTextbox.SelectAll();
-                Populate(searchTextbox.Text);
-            }
-            if (searchTextbox.Text == "")
-            {
-                //Als hij leeg is de normale voorraad lijst laden
-                Populate();
-            }
-        }
-
-        private void toolStripTextBox1_Click(object sender, EventArgs e)
-        {
-            searchTextbox.SelectAll();
-        }
-
         int closeAmount = 1;
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (closeAmount == 1)
             { 
-                globalClass.CheckOut(naam);
+                globalClass.CheckOut(loggedInWerknemer.Id);
             }
             closeAmount--;
             if (this.CloseAppOnClose)
             {
                 Application.Exit();
+
             }
         }
 
@@ -132,20 +221,20 @@ namespace Gimpies
             artikelForm.TopMost = true;
         }
 
-        public void ArtikelToevoegen(string beschrijving, string aantal, string prijs, string maat)
+        public void ArtikelToevoegen(string beschrijving, string aantal, string prijs, string maat, string verkocht)
         {
             //Toevoegen en list repopulaten
             globalClass.MysqlServerInsert(beschrijving,aantal,prijs,maat);
             Populate();
         }
 
-        public void ArtikelBewerken(long id, string beschrijving, string aantal, string prijs, string maat)
+        public void ArtikelBewerken(long id, string beschrijving, string aantal, string prijs, string maat, string verkocht)
         {
             //Bewerkenen en repopulaten
             bool itemBestaat = voorraad.Any(r => r.ItemID == id);
             if (itemBestaat)
             {
-                globalClass.MysqlServerUpdate(id,beschrijving,aantal,prijs,maat);
+                globalClass.MysqlServerUpdate(id,beschrijving,aantal,prijs,maat,verkocht);
                 Populate();
             }
             else
@@ -156,7 +245,12 @@ namespace Gimpies
 
         private void artikelToevoegenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Gimpies.ArtikelForm artikelForm = new Gimpies.ArtikelForm(this);
+            NieuwArtikelForm();
+        }
+
+        private void NieuwArtikelForm(string id = "-1")
+        {
+            Gimpies.ArtikelForm artikelForm = new Gimpies.ArtikelForm(this, Int64.Parse(id));
             artikelForm.Show();
             artikelForm.TopMost = true;
         }
@@ -179,20 +273,76 @@ namespace Gimpies
 
         private void bewerkenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Gimpies.ArtikelForm artikelForm = new Gimpies.ArtikelForm(this, Int64.Parse(artikelenList.SelectedItems[0].Text));
-            artikelForm.Show();
-            artikelForm.TopMost = true;
+            if (artikelenList.SelectedItems.Count > 0)
+            {
+                NieuwArtikelForm(artikelenList.SelectedItems[0].Text);
+            }
         }
 
         private void verwijderenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            globalClass.MysqlServerDelete(Int64.Parse(artikelenList.SelectedItems[0].Text));
-            Populate();
+            VerwijderArtikel();
         }
 
-        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void VerwijderArtikel()
+        {
+            if (artikelenList.SelectedItems.Count > 0)
+            {
+                globalClass.MysqlServerDelete(Int64.Parse(artikelenList.SelectedItems[0].Text));
+                Populate();
+            }
+        }
+
+        private void artikelenList_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                if (artikelenList.SelectedItems.Count > 0)
+                {
+                    NieuwArtikelForm(artikelenList.SelectedItems[0].Text);
+                }
+            }
+        }
+
+        private void toolStripButton1_Click(object sender, EventArgs e)
+        {
+            NieuwArtikelForm();
+        }
+
+        private void toolStripTextBox1_KeyDown_1(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                //Zoeken in voorraad en dan tijdelijke lijst maken
+                searchTextBox.SelectAll();
+                Populate(searchTextBox.Text);
+            }
+            if (searchTextBox.Text == "")
+            {
+                //Als hij leeg is de normale voorraad lijst laden
+                Populate();
+            }
+        }
+
+        private void toolStripTextBox1_Click(object sender, EventArgs e)
+        {
+            searchTextBox.SelectAll();
+        }
+
+        private void chart1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void toolStripButton2_Click(object sender, EventArgs e)
+        {
+            VerkoopRegistrerenForm();
+        }
+
+        private void VerkoopRegistrerenForm()
+        {
+            VerkoopRegistreren verkoopRegistreren = new VerkoopRegistreren(this, loggedInWerknemer);
+            verkoopRegistreren.Show();
         }
     }
 }

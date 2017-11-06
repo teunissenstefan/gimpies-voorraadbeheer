@@ -26,7 +26,7 @@ namespace Gimpies
                     return 0;
                 }
             }
-            return 30;
+            return 3; //Standaard
         }
         public string ConnectionString()
         {
@@ -73,6 +73,7 @@ namespace Gimpies
                             newVoorraad.ItemAmount = Int64.Parse(resultRow.Row["aantal"].ToString());
                             newVoorraad.ItemPrijs = (resultRow.Row["prijs"].ToString());
                             newVoorraad.ItemMaat = Int64.Parse(resultRow.Row["maat"].ToString());
+                            newVoorraad.ItemVerkocht = Int64.Parse(resultRow.Row["verkocht"].ToString());
                             voorraad.Add(newVoorraad);
                         }
                     }
@@ -116,6 +117,33 @@ namespace Gimpies
                 }
             }
         }
+        public bool MysqlAddSale(string userid, string artikelid, string aantal, string euro)
+        {
+            try
+            {
+                using (var connection = new MySqlConnection(ConnectionString()))
+                {
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "INSERT INTO sales (userid,artikelid,aantal,euro,date) VALUES (@userid,@artikelid,@aantal,@euro,@date)";
+                        command.Parameters.AddWithValue("@userid", Int64.Parse(userid));
+                        command.Parameters.AddWithValue("@artikelid", Int64.Parse(artikelid));
+                        command.Parameters.AddWithValue("@aantal", Int64.Parse(aantal));
+                        command.Parameters.AddWithValue("@euro", euro);
+                        command.Parameters.AddWithValue("@date",DateTime.Now);
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Kan de rij niet toevoegen: " + ex.ToString());
+                return false;
+            }
+        }
         public bool MysqlServerInsert(string beschrijving, string aantal, string prijs, string maat)
         {
             try
@@ -142,7 +170,7 @@ namespace Gimpies
                 return false;
             }
         }
-        public bool MysqlServerUpdate(long id, string beschrijving, string aantal, string prijs, string maat)
+        public bool MysqlServerUpdate(long id, string beschrijving, string aantal, string prijs, string maat, string verkocht)
         {
             try
             {
@@ -151,12 +179,13 @@ namespace Gimpies
                     connection.Open();
                     using (var command = connection.CreateCommand())
                     {
-                        command.CommandText = "UPDATE artikelen SET beschrijving=@beschrijving,aantal=@aantal,maat=@maat,prijs=@prijs WHERE id=@id";
+                        command.CommandText = "UPDATE artikelen SET beschrijving=@beschrijving,aantal=@aantal,maat=@maat,prijs=@prijs,verkocht=@verkocht WHERE id=@id";
                         command.Parameters.AddWithValue("@id", id);
                         command.Parameters.AddWithValue("@beschrijving", beschrijving);
                         command.Parameters.AddWithValue("@aantal", Int64.Parse(aantal));
                         command.Parameters.AddWithValue("@prijs", prijs.Replace(',', '.'));
                         command.Parameters.AddWithValue("@maat", Int64.Parse(maat));
+                        command.Parameters.AddWithValue("@verkocht",Int64.Parse(verkocht));
                         command.ExecuteNonQuery();
                     }
                     connection.Close();
@@ -199,7 +228,40 @@ namespace Gimpies
                 return false;
             }
         }
-        public bool LOGIN(string wachtwoord)
+        public bool LOGIN(string wachtwoord, string username)
+        {
+            try
+            {
+                using (var connection = new MySqlConnection(ConnectionString()))
+                {
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "SELECT * FROM werknemers WHERE username=@uname AND password=@pword";
+                        command.Parameters.AddWithValue("@uname", username);
+                        command.Parameters.AddWithValue("@pword", wachtwoord);
+                        MySqlDataAdapter adap = new MySqlDataAdapter(command);
+                        DataSet ds = new DataSet();
+                        adap.Fill(ds);
+                        foreach (DataRowView resultRow in ds.Tables[0].DefaultView)
+                        {
+                            if (resultRow.Row["username"].ToString() == username)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    connection.Close();
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Kan niet verbinden met de database: " + ex.ToString());
+                return false;
+            }
+        }
+        public bool OLDLOGIN(string wachtwoord)
         {
             string ww = string.Empty;
             foreach (var gvar in GetGlobalVars())
@@ -219,7 +281,7 @@ namespace Gimpies
             }
             return false;
         }
-        private void Log(bool inlog,string medewerker)
+        private void Log(bool inlog, long medewerkerId)
         {
             try
             {
@@ -228,8 +290,8 @@ namespace Gimpies
                     connection.Open();
                     using (var command = connection.CreateCommand())
                     {
-                        command.CommandText = "INSERT INTO log (medewerker,inlog,tijd) VALUES (@medewerker,@inlog,@tijd)";
-                        command.Parameters.AddWithValue("@medewerker", medewerker);
+                        command.CommandText = "INSERT INTO log (medewerkerid,inlog,tijd) VALUES (@medewerker,@inlog,@tijd)";
+                        command.Parameters.AddWithValue("@medewerker", medewerkerId);
                         command.Parameters.AddWithValue("@inlog", inlog);
                         command.Parameters.AddWithValue("@tijd", DateTime.Now);
                         command.ExecuteNonQuery();
@@ -242,13 +304,13 @@ namespace Gimpies
                 MessageBox.Show("Kan niet loggen: " + ex.ToString());
             }
         }
-        public void CheckIn(string medewerker)
+        public void CheckIn(long medewerkerId)
         {
-            Log(true,medewerker);
+            Log(true, medewerkerId);
         }
-        public void CheckOut(string medewerker)
+        public void CheckOut(long medewerkerId)
         {
-            Log(false,medewerker);
+            Log(false, medewerkerId);
         }
         private List<GlobalVars> GetGlobalVars()
         {
@@ -282,6 +344,71 @@ namespace Gimpies
                 MessageBox.Show("Kan niet verbinden met de database: " + ex.ToString());
                 List<GlobalVars> globalVars = new List<GlobalVars>();
                 return globalVars;
+            }
+        }
+        public List<Werknemer> GetWerknemers()
+        {
+            try
+            {
+                List<Werknemer> werknemers = new List<Werknemer>();
+
+                using (var connection = new MySqlConnection(ConnectionString()))
+                {
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "SELECT * FROM werknemers";
+                        MySqlDataAdapter adap = new MySqlDataAdapter(command);
+                        DataSet ds = new DataSet();
+                        adap.Fill(ds);
+                        foreach (DataRowView resultRow in ds.Tables[0].DefaultView)
+                        {
+                            Werknemer wnemer = new Werknemer((Int64)resultRow.Row["id"], resultRow.Row["username"].ToString(), (Int32)resultRow.Row["rank"]);
+                            werknemers.Add(wnemer);
+                        }
+                    }
+                    connection.Close();
+                    return werknemers;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Kan niet verbinden met de database: " + ex.ToString());
+                List<Werknemer> werknemers = new List<Werknemer>();
+                return werknemers;
+            }
+        }
+        public Werknemer GetWerknemer(string wachtwoord, string username)
+        {
+            try
+            {
+                using (var connection = new MySqlConnection(ConnectionString()))
+                {
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "SELECT * FROM werknemers WHERE username=@uname AND password=@pword";
+                        command.Parameters.AddWithValue("@uname", username);
+                        command.Parameters.AddWithValue("@pword", wachtwoord);
+                        MySqlDataAdapter adap = new MySqlDataAdapter(command);
+                        DataSet ds = new DataSet();
+                        adap.Fill(ds);
+                        foreach (DataRowView resultRow in ds.Tables[0].DefaultView)
+                        {
+                            if (resultRow.Row["username"].ToString() == username)
+                            {
+                                return new Werknemer((Int64)resultRow.Row["id"], resultRow.Row["username"].ToString(), (Int32)resultRow.Row["rank"]);
+                            }
+                        }
+                    }
+                    connection.Close();
+                    return new Werknemer(-1,"",0);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Kan niet verbinden met de database: " + ex.ToString());
+                return new Werknemer(-1, "", 0);
             }
         }
     }

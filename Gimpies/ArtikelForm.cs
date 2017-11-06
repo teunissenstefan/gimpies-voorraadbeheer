@@ -36,15 +36,16 @@ namespace Gimpies
         {
             if (add)
             {
-                mainForm.ArtikelToevoegen(beschrijvingTextbox.Text, aantalTextbox.Text, prijsTextbox.Text, maatTextbox.Text);
+                mainForm.ArtikelToevoegen(beschrijvingTextbox.Text, aantalTextbox.Text, prijsTextbox.Text, maatTextbox.Text,0.ToString());
             }
             else
             {
-                mainForm.ArtikelBewerken(id,beschrijvingTextbox.Text,aantalTextbox.Text,prijsTextbox.Text,maatTextbox.Text);
+                mainForm.ArtikelBewerken(id,beschrijvingTextbox.Text,aantalTextbox.Text,prijsTextbox.Text,maatTextbox.Text,verkocht.ToString());
             }
             this.Close();
         }
 
+        long verkocht;
         private void ArtikelForm_Load(object sender, EventArgs e)
         {
             if (add==false)
@@ -55,6 +56,7 @@ namespace Gimpies
                 aantalTextbox.Text = item.ItemAmount.ToString();
                 prijsTextbox.Text = item.ItemPrijs;
                 maatTextbox.Text = item.ItemMaat.ToString();
+                verkocht = item.ItemVerkocht;
             }
             else
             {

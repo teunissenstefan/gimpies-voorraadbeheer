@@ -43,6 +43,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -51,6 +52,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="VerkoopRegistreren.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VerkoopRegistreren.Designer.cs">
+      <DependentUpon>VerkoopRegistreren.cs</DependentUpon>
+    </Compile>
     <Compile Include="ArtikelForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -77,11 +84,16 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Voorraad.cs" />
+    <Compile Include="Sale.cs" />
+    <Compile Include="Werknemer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="VerkoopRegistreren.resx">
+      <DependentUpon>VerkoopRegistreren.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ArtikelForm.resx">
       <DependentUpon>ArtikelForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -90,6 +102,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MForm.resx">
+      <DependentUpon>MForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

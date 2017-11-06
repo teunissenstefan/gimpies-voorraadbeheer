@@ -12,6 +12,7 @@ namespace Gimpies
 {
     public class Program
     {
+        #region Definitions
         [DllImport("kernel32.dll")]
         static extern IntPtr GetConsoleWindow();
 
@@ -23,6 +24,8 @@ namespace Gimpies
 
         static List<Voorraad> voorraad = new List<Voorraad>();
         static string _username = "";
+        static string _ww = "";
+        static Werknemer werknemer;
 
         const ConsoleKey menuKey = ConsoleKey.F8;
         const ConsoleKey backKey = ConsoleKey.Escape;
@@ -35,6 +38,7 @@ namespace Gimpies
         static int MaxLogins = 0;
 
         static Global globalClass = new Global();
+        #endregion Definitions
         //Main
         static void Main(string[] args)
         {
@@ -97,6 +101,7 @@ namespace Gimpies
                         DisplayLoginUsername();
                         break;
                     case View.Menu:
+                        //Als de gebruikersnaam niet leeg is naar menu gaan, anders naar login
                         if (_username != string.Empty) {
                             DisplayMenu(prevInput);
                         }
@@ -170,10 +175,13 @@ namespace Gimpies
             else
             {
                 Console.Write("\nPassword: ");
-                if (globalClass.LOGIN(ReadPassword()))
+                string ww = ReadPassword();
+                if (globalClass.OLDLOGIN(ww))
                 {
                     _username = username;
-                    globalClass.CheckIn(username);
+                    _ww = ww;
+                    werknemer = globalClass.GetWerknemer(ww,username);
+                    globalClass.CheckIn(werknemer.Id);
                     MainView(View.Menu);
                 }
                 else
@@ -219,13 +227,13 @@ namespace Gimpies
             }
             else if (input == "9")
             {
-                globalClass.CheckOut(_username);
+                globalClass.CheckOut(werknemer.Id);
                 _username = "";
                 MainView(View.Login);
             }
             else if (input == "0")
             {
-                globalClass.CheckOut(_username);
+                globalClass.CheckOut(werknemer.Id);
                 MainView(View.EXIT);
             }
             else
@@ -463,7 +471,7 @@ namespace Gimpies
                     {
                         item.ItemAmount = item.ItemAmount + Int64.Parse(input);
                         //Verwijderen uit de database
-                        globalClass.MysqlServerUpdate(id,item.ItemDesc,item.ItemAmount.ToString(),item.ItemPrijs,item.ItemMaat.ToString()); ;
+                        globalClass.MysqlServerUpdate(id,item.ItemDesc,item.ItemAmount.ToString(),item.ItemPrijs,item.ItemMaat.ToString(),item.ItemVerkocht.ToString());
                         MainView(View.EditVoorraad, id.ToString());
                     }
                 }
@@ -506,7 +514,7 @@ namespace Gimpies
                 else
                 {
                     //Updaten op de server
-                    globalClass.MysqlServerUpdate(id,input,item.ItemAmount.ToString(),item.ItemPrijs,item.ItemMaat.ToString());
+                    globalClass.MysqlServerUpdate(id,input,item.ItemAmount.ToString(),item.ItemPrijs,item.ItemMaat.ToString(),item.ItemVerkocht.ToString());
                     MainView(View.EditVoorraad, id.ToString());
                 }
             }
@@ -548,7 +556,7 @@ namespace Gimpies
                 else
                 {
                     //Updaten op de database
-                    globalClass.MysqlServerUpdate(id,item.ItemDesc,item.ItemAmount.ToString(),item.ItemPrijs,input);
+                    globalClass.MysqlServerUpdate(id,item.ItemDesc,item.ItemAmount.ToString(),item.ItemPrijs,input,item.ItemVerkocht.ToString());
                     MainView(View.EditVoorraad, id.ToString());
                 }
             }
@@ -590,7 +598,7 @@ namespace Gimpies
                 else
                 {
                     //Lokale lijst opslaan in lijst
-                    globalClass.MysqlServerUpdate(id,item.ItemDesc,item.ItemAmount.ToString(),input,item.ItemMaat.ToString());
+                    globalClass.MysqlServerUpdate(id,item.ItemDesc,item.ItemAmount.ToString(),input,item.ItemMaat.ToString(),item.ItemVerkocht.ToString());
                     MainView(View.EditVoorraad, id.ToString());
                 }
             }

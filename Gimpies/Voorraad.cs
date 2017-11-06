@@ -13,5 +13,6 @@ namespace Gimpies
         public string ItemDesc;
         public string ItemPrijs;
         public long ItemMaat;
+        public long ItemVerkocht;
     }
 }

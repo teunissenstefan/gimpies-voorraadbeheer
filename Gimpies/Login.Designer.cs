@@ -71,6 +71,7 @@
             this.gebruikersnaamTxtBox.Name = "gebruikersnaamTxtBox";
             this.gebruikersnaamTxtBox.Size = new System.Drawing.Size(167, 20);
             this.gebruikersnaamTxtBox.TabIndex = 0;
+            this.gebruikersnaamTxtBox.TextChanged += new System.EventHandler(this.gebruikersnaamTxtBox_TextChanged);
             // 
             // wachtwoordTxtBox
             // 
@@ -97,6 +98,7 @@
             this.logo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.logo.TabIndex = 101;
             this.logo.TabStop = false;
+            this.logo.Click += new System.EventHandler(this.logo_Click);
             // 
             // label2
             // 
