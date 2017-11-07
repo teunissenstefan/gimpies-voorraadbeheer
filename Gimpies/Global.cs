@@ -50,6 +50,35 @@ namespace Gimpies
             }
             return text.First().ToString().ToUpper() + String.Join("", text.Skip(1));
         }
+        [System.Obsolete("VOORRAAD_LOAD is deprecated, gebruik MysqlServerLoadArtikelen.",true)]
+        public List<Voorraad> VOORRAAD_LOAD()
+        {
+            List<Voorraad> voorraad = new List<Voorraad>();
+            foreach (var line in File.ReadLines(FILE_LOCATION()))
+            {
+                List<String> indexes = line.Split(',').ToList<String>();
+                Voorraad newVoorraad = new Voorraad();
+                newVoorraad.ItemID = Int64.Parse(indexes[0]);
+                newVoorraad.ItemDesc = (indexes[1]);
+                newVoorraad.ItemAmount = Int64.Parse(indexes[2]);
+                newVoorraad.ItemPrijs = (indexes[4]);
+                newVoorraad.ItemMaat = Int64.Parse(indexes[3]);
+                voorraad.Add(newVoorraad);
+            }
+            voorraad = voorraad.OrderBy(p => p.ItemID).ToList();
+            return voorraad;
+        }
+        [System.Obsolete("VOORRAAD_SAVE is deprecated, gebruik de MysqlServerUpdate, MysqlServerInsert en MysqlServerDelete functies.",true)]
+        public void VOORRAAD_SAVE(List<Voorraad> voorraad)
+        {
+            using (TextWriter tw = new StreamWriter(FILE_LOCATION()))
+            {
+                foreach (Voorraad s in voorraad)
+                {
+                    tw.WriteLine(s.ItemID + "," + s.ItemDesc + "," + s.ItemAmount + "," + s.ItemMaat + "," + s.ItemPrijs);
+                }
+            }
+        }
         public List<Voorraad> MysqlServerLoadArtikelen()
         {
             try
@@ -84,37 +113,47 @@ namespace Gimpies
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Kan niet verbinden met de database: "+ex.ToString());
+                MessageBox.Show("Kan niet verbinden met de database: " + ex.ToString());
                 return new List<Voorraad>();
             }
         }
-        [System.Obsolete("VOORRAAD_LOAD is deprecated, gebruik MysqlServerLoadArtikelen.",true)]
-        public List<Voorraad> VOORRAAD_LOAD()
+        public List<Sale> MysqlServerLoadSales()
         {
-            List<Voorraad> voorraad = new List<Voorraad>();
-            foreach (var line in File.ReadLines(FILE_LOCATION()))
+            try
             {
-                List<String> indexes = line.Split(',').ToList<String>();
-                Voorraad newVoorraad = new Voorraad();
-                newVoorraad.ItemID = Int64.Parse(indexes[0]);
-                newVoorraad.ItemDesc = (indexes[1]);
-                newVoorraad.ItemAmount = Int64.Parse(indexes[2]);
-                newVoorraad.ItemPrijs = (indexes[4]);
-                newVoorraad.ItemMaat = Int64.Parse(indexes[3]);
-                voorraad.Add(newVoorraad);
-            }
-            voorraad = voorraad.OrderBy(p => p.ItemID).ToList();
-            return voorraad;
-        }
-        [System.Obsolete("VOORRAAD_SAVE is deprecated, gebruik de MysqlServerUpdate, MysqlServerInsert en MysqlServerDelete functies.",true)]
-        public void VOORRAAD_SAVE(List<Voorraad> voorraad)
-        {
-            using (TextWriter tw = new StreamWriter(FILE_LOCATION()))
-            {
-                foreach (Voorraad s in voorraad)
+                List<Sale> sales = new List<Sale>();
+
+                using (var connection = new MySqlConnection(ConnectionString()))
                 {
-                    tw.WriteLine(s.ItemID + "," + s.ItemDesc + "," + s.ItemAmount + "," + s.ItemMaat + "," + s.ItemPrijs);
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "SELECT * FROM sales";
+                        MySqlDataAdapter adap = new MySqlDataAdapter(command);
+                        DataSet ds = new DataSet();
+                        adap.Fill(ds);
+                        foreach (DataRowView resultRow in ds.Tables[0].DefaultView)
+                        {
+                            Sale newSale = new Sale(
+                                Int64.Parse(resultRow.Row["id"].ToString()),
+                                Int64.Parse(resultRow.Row["artikelid"].ToString()),
+                                Int64.Parse(resultRow.Row["userid"].ToString()),
+                                Int64.Parse(resultRow.Row["aantal"].ToString()),
+                                resultRow.Row["euro"].ToString(),
+                                DateTime.Parse(resultRow.Row["date"].ToString())
+                            );
+                            sales.Add(newSale);
+                        }
+                    }
+                    sales = sales.OrderByDescending(p => p.Id).ToList();
+                    connection.Close();
+                    return sales;
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Kan niet verbinden met de database: " + ex.ToString());
+                return new List<Sale>();
             }
         }
         public bool MysqlAddSale(string userid, string artikelid, string aantal, string euro)

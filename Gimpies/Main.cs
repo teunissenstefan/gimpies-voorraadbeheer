@@ -68,34 +68,57 @@ namespace Gimpies
         }
 
 
-        private void LoadStatistischeGegevens()
+        public void LoadStatistischeGegevens()
         {
+            sales = globalClass.MysqlServerLoadSales();
+            verkochtListView.Items.Clear();
             if (isAdmin)
             {
+                long varTotaalVerkocht = 0;
+                float varTotaalVerkochtEuro = 0.0f;
                 //Statistieken van iedereen weergeven
-                
-                //SALES uit database halen
-                //foreach SALE 
-                //  1.  Aantal bij totaalVerkocht doen
-                //  2.  Aantal eur bij totaalVerkochtEuro doen
-                //  3.  In listview stoppen \/
-                //      Artikel naam krijgen met List.Find(); en dan .ItemDesc
-                //      Medewerker naam krijgen met List.Find(); en dan .Username
-                //endforeach
+                foreach (Sale s in sales)
+                {
+                    varTotaalVerkocht += Int64.Parse(s.Aantal.ToString());
+                    varTotaalVerkochtEuro += float.Parse(s.Euro.ToString());
+                    //In listview stoppen \/
+                    Voorraad vr = voorraad.Find(r => r.ItemID == s.ArtikelId);
+                    Werknemer wn = werknemers.Find(r => r.Id == s.UserId);
+
+                    ListViewItem item = new ListViewItem(s.Id.ToString());
+                    item.SubItems.Add(globalClass.FIRST_CHAR_UC(wn.Username));
+                    item.SubItems.Add(vr.ItemDesc);
+                    item.SubItems.Add(s.Aantal.ToString());
+                    item.SubItems.Add(s.Euro);
+                    item.SubItems.Add(s.Datum.ToString());
+                    verkochtListView.Items.Add(item);
+                }
+                totaalVerkocht.Text = varTotaalVerkocht.ToString();
+                totaalVerkochtEuro.Text = varTotaalVerkochtEuro.ToString();
             }
             else
             {
+                long varTotaalVerkocht = 0;
+                float varTotaalVerkochtEuro = 0.0f;
                 //Statistieken van mezelf weergeven
+                List<Sale> mySales = sales.FindAll(r => r.UserId == loggedInWerknemer.Id);
+                foreach (Sale s in mySales)
+                {
+                    varTotaalVerkocht += Int64.Parse(s.Aantal.ToString());
+                    varTotaalVerkochtEuro += float.Parse(s.Euro.ToString());
+                    //In listview stoppen \/
+                    Voorraad vr = voorraad.Find(r => r.ItemID == s.ArtikelId);
 
-
-                //SALES WHERE loggedInMedewerker uit database halen
-                //foreach SALE 
-                //  1.  Aantal bij totaalVerkocht doen
-                //  2.  Aantal eur bij totaalVerkochtEuro doen
-                //  3.  In listview stoppen \/
-                //      Artikel naam krijgen met List.Find(); en dan .ItemDesc
-                //      Medewerker naam krijgen met loggedInMedewerker.Username
-                //endforeach
+                    ListViewItem item = new ListViewItem(s.Id.ToString());
+                    item.SubItems.Add(globalClass.FIRST_CHAR_UC(loggedInWerknemer.Username));
+                    item.SubItems.Add(vr.ItemDesc);
+                    item.SubItems.Add(s.Aantal.ToString());
+                    item.SubItems.Add(s.Euro);
+                    item.SubItems.Add(s.Datum.ToString());
+                    verkochtListView.Items.Add(item);
+                }
+                totaalVerkocht.Text = varTotaalVerkocht.ToString();
+                totaalVerkochtEuro.Text = varTotaalVerkochtEuro.ToString();
             }
         }
 
@@ -107,11 +130,10 @@ namespace Gimpies
                 searchTextBox.Focus();
                 return true;
             }
-            if (keyData == (Keys.Control | Keys.T) && isAdmin)
+            if (keyData == (Keys.Control | Keys.T))
             {
                 //Admin:        Ctrl+T = Nieuw artikel toevoegen
                 //Gebruiker:    Ctrl+T = Verkoop registreren
-                NieuwArtikelForm();
                 if (isAdmin)
                 {
                     NieuwArtikelForm();
@@ -121,6 +143,10 @@ namespace Gimpies
                     VerkoopRegistrerenForm();
                 }
                 return true;
+            }
+            if (keyData == (Keys.Alt | Keys.W))
+            {
+                LogOut();
             }
             if (keyData == (Keys.Alt | Keys.Q))
             {
@@ -180,6 +206,11 @@ namespace Gimpies
         }
 
         private void uitloggenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LogOut();
+        }
+
+        private void LogOut()
         {
             List<Form> oForms = new List<Form>();
             foreach (Form openForm in Application.OpenForms)

@@ -8,18 +8,20 @@ namespace Gimpies
 {
     public class Sale
     {
-        public Sale(long id, long uid, long aant, string eur, DateTime dt)
+        public Sale(long id, long aid, long uid, long aant, string eur, DateTime dt)
         {
             this._id = id;
             this._uid = uid;
             this._aant = aant;
             this._eur = eur;
             this._dt = dt;
+            this._aid = aid;
         }
 
         private long _id;
         private long _uid;
         private long _aant;
+        private long _aid;
         private string _eur;
         private DateTime _dt;
 
@@ -44,6 +46,18 @@ namespace Gimpies
             set
             {
                 this._uid = value;
+            }
+        }
+
+        public long ArtikelId
+        {
+            get
+            {
+                return this._aid;
+            }
+            set
+            {
+                this._aid = value;
             }
         }
 
