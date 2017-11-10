@@ -7,6 +7,7 @@ Opdracht AO cyclus 2
 * [Visual Studio](https://www.visualstudio.com/) - IDE
 * [.NET Framework](https://www.microsoft.com/net/download) - Framework
 * [MySQL Server](https://www.mysql.com/downloads/) - Database
+* [MySQL Connector](https://dev.mysql.com/downloads/connector/net/) - .NET MySQL connector
 
 ## Inzetten
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,7 +53,7 @@ namespace Gimpies
                         //Genoeg beschikbaar
                         //In SALES tabel toevoegen als sale, en ook het aantal verkocht updaten in de ARTIKELEN tabel (gwn MysqlServerUpdate)
                         //Totale euro uitrekenen
-                        float euro = float.Parse(item.ItemPrijs) * Int64.Parse(aantalTextbox.Text);
+                        float euro = float.Parse(item.ItemPrijs, CultureInfo.InvariantCulture.NumberFormat) * Int64.Parse(aantalTextbox.Text);
                         //SALES tabel toevoeging
                         globalClass.MysqlAddSale(werknemer.Id.ToString(),item.ItemID.ToString(),aantalTextbox.Text,euro.ToString());
                         //ARTIKELEN tabel update

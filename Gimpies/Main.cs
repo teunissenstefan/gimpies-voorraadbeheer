@@ -105,8 +105,7 @@ namespace Gimpies
             { 
                 globalClass.CheckOut(loggedInWerknemer.Id);
             }
-            closeAmount--;
-            if (this.CloseAppOnClose)
+            closeAmount--;            if (this.CloseAppOnClose)
             {
                 Application.Exit();
 
@@ -174,7 +173,7 @@ namespace Gimpies
             VerkoopRegistrerenForm();
         }
         #endregion
-
+        
         private void LoadVoorraadChart()
         {
             chart1.Series.Clear();
@@ -191,45 +190,46 @@ namespace Gimpies
             
             foreach (Voorraad artikel in voorraad)
             {
-                VerkochteSchoenenSeries.Points.AddXY(artikel.ItemDesc, artikel.ItemAmount);
+                VerkochteSchoenenSeries.Points.AddXY(artikel.ItemDesc, (artikel.ItemAmount-artikel.ItemVerkocht));
             }
+            chart1.ChartAreas[0].AxisX.LabelStyle.Angle = 45;
+            chart1.ChartAreas[0].AxisX.Interval = 1;
 
             chart1.Invalidate();
             chart1.ResetAutoValues();
         }
-
+        
         public void LoadStatistischeGegevens()
         {
             sales = globalClass.MysqlServerLoadSales();
             verkochtListView.Items.Clear();
+            long varTotaalVerkocht = 0;
+            float varTotaalVerkochtEuro = 0.0f;
             if (isAdmin)
             {
-                long varTotaalVerkocht = 0;
-                float varTotaalVerkochtEuro = 0.0f;
                 //Statistieken van iedereen weergeven
                 foreach (Sale s in sales)
                 {
-                    varTotaalVerkocht += Int64.Parse(s.Aantal.ToString());
-                    varTotaalVerkochtEuro += float.Parse(s.Euro.ToString());
-                    //In listview stoppen \/
                     Voorraad vr = voorraad.Find(r => r.ItemID == s.ArtikelId);
                     Werknemer wn = werknemers.Find(r => r.Id == s.UserId);
+                    if (vr != null && wn != null)
+                    {
+                        varTotaalVerkocht += Int64.Parse(s.Aantal.ToString());
+                        varTotaalVerkochtEuro += float.Parse(s.Euro.ToString());
+                        //In listview stoppen \/
 
-                    ListViewItem item = new ListViewItem(s.Id.ToString());
-                    item.SubItems.Add(globalClass.FIRST_CHAR_UC(wn.Username));
-                    item.SubItems.Add(vr.ItemDesc);
-                    item.SubItems.Add(s.Aantal.ToString());
-                    item.SubItems.Add(s.Euro);
-                    item.SubItems.Add(s.Datum.ToString());
-                    verkochtListView.Items.Add(item);
+                        ListViewItem item = new ListViewItem(s.Id.ToString());
+                        item.SubItems.Add(globalClass.FIRST_CHAR_UC(wn.Username));
+                        item.SubItems.Add(vr.ItemDesc);
+                        item.SubItems.Add(s.Aantal.ToString());
+                        item.SubItems.Add(s.Euro);
+                        item.SubItems.Add(s.Datum.ToString());
+                        verkochtListView.Items.Add(item);
+                    }
                 }
-                totaalVerkocht.Text = varTotaalVerkocht.ToString();
-                totaalVerkochtEuro.Text = varTotaalVerkochtEuro.ToString();
             }
             else
             {
-                long varTotaalVerkocht = 0;
-                float varTotaalVerkochtEuro = 0.0f;
                 //Statistieken van mezelf weergeven
                 List<Sale> mySales = sales.FindAll(r => r.UserId == loggedInWerknemer.Id);
                 foreach (Sale s in mySales)
@@ -247,11 +247,11 @@ namespace Gimpies
                     item.SubItems.Add(s.Datum.ToString());
                     verkochtListView.Items.Add(item);
                 }
-                totaalVerkocht.Text = varTotaalVerkocht.ToString();
-                totaalVerkochtEuro.Text = varTotaalVerkochtEuro.ToString();
             }
+            totaalVerkocht.Text = varTotaalVerkocht.ToString();
+            totaalVerkochtEuro.Text = string.Format("{0:n}",varTotaalVerkochtEuro);
         }
-
+        
         public void Populate(string zoekterm = "")
         {
             artikelenList.Items.Clear();
@@ -261,7 +261,7 @@ namespace Gimpies
                 var tmpVoorraad = voorraad;
                 if (verbergToolStripMenuItem.Checked)
                 {
-                    tmpVoorraad = tmpVoorraad.FindAll(r => (r.ItemAmount - r.ItemVerkocht) > 0);
+                    tmpVoorraad = tmpVoorraad.FindAll(r => (r.ItemAmount - r.ItemVerkocht) != 0);
                 }
                 foreach (var row in tmpVoorraad)
                 {
@@ -280,13 +280,14 @@ namespace Gimpies
                 var zoekQuery = voorraad.FindAll(r => r.ItemDesc.ToLower().Contains(zoekterm.ToLower()));
                 if (verbergToolStripMenuItem.Checked)
                 {
-                    zoekQuery = zoekQuery.FindAll(r => (r.ItemAmount - r.ItemVerkocht) > 0);
+                    zoekQuery = zoekQuery.FindAll(r => (r.ItemAmount-r.ItemVerkocht) != 0);
                 }
                 foreach (var row in zoekQuery)
                 {
                     var item = new ListViewItem(row.ItemID.ToString());
                     item.SubItems.Add(row.ItemDesc.ToString());
                     item.SubItems.Add(row.ItemAmount.ToString());
+                    item.SubItems.Add(row.ItemVerkocht.ToString());
                     item.SubItems.Add(row.ItemMaat.ToString());
                     item.SubItems.Add(row.ItemPrijs.ToString());
                     artikelenList.Items.Add(item);
@@ -311,7 +312,7 @@ namespace Gimpies
             }
         }
 
-        private void LogOut()
+        public void LogOut()
         {
             List<Form> oForms = new List<Form>();
             foreach (Form openForm in Application.OpenForms)
@@ -410,8 +411,38 @@ namespace Gimpies
 
         private void werknemersListview_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            var werknemer = werknemers.Find(r => r.Id == Int64.Parse(werknemersListview.SelectedItems[0].Text));
-            NieuweWerknemerForm(werknemer,false);
+            BewerkWerknemer();
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            BewerkWerknemer();
+        }
+
+        private void BewerkWerknemer()
+        {
+            if (werknemersListview.SelectedItems.Count > 0)
+            {
+                var werknemer = werknemers.Find(r => r.Id == Int64.Parse(werknemersListview.SelectedItems[0].Text));
+                NieuweWerknemerForm(werknemer, false);
+            }
+        }
+
+        private void toolStripMenuItem2_Click(object sender, EventArgs e)
+        {
+            if (werknemersListview.SelectedItems.Count > 0)
+            {
+                var werknemer = werknemers.Find(r => r.Id == Int64.Parse(werknemersListview.SelectedItems[0].Text));
+                if (werknemer.Id != loggedInWerknemer.Id)
+                {
+                    globalClass.MysqlGebruikerDelete(werknemer.Id);
+                    Populate();
+                }
+                else
+                {
+                    MessageBox.Show("Je kan jezelf niet verwijderen");
+                }
+            }
         }
     }
 }

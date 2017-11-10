@@ -507,5 +507,61 @@ namespace Gimpies
                 return false;
             }
         }
+        public bool MysqlGebruikerUpdate(long id, string username, string password, long rank)
+        {
+            try
+            {
+                using (var connection = new MySqlConnection(ConnectionString()))
+                {
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "UPDATE werknemers SET username=@uname,password=@pword,rank=@rank WHERE id=@id";
+                        command.Parameters.AddWithValue("@id", id);
+                        command.Parameters.AddWithValue("@uname", username);
+                        command.Parameters.AddWithValue("@pword", password);
+                        command.Parameters.AddWithValue("@rank", rank);
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Kan de rij niet updaten: " + ex.ToString());
+                return false;
+            }
+        }
+        public bool MysqlGebruikerDelete(long id)
+        {
+            try
+            {
+                using (var connection = new MySqlConnection(ConnectionString()))
+                {
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        if (id == -1)
+                        {
+                            command.CommandText = "DELETE FROM werknemers";
+                        }
+                        else
+                        {
+                            command.CommandText = "DELETE FROM werknemers WHERE id=@id";
+                            command.Parameters.AddWithValue("@id", id);
+                        }
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Kan de rij niet verwijderen: " + ex.ToString());
+                return false;
+            }
+        }
     }
 }

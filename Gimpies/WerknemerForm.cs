@@ -36,7 +36,7 @@ namespace Gimpies
             if (add)
             {
                 //Toevoegen
-                //Kijken of item bestaat
+                //Kijken of rank bestaat
                 bool itemBestaat = ranks.Any(r => r.Id == Int64.Parse(comboBox1.SelectedValue.ToString()));
                 if (itemBestaat)
                 {
@@ -63,6 +63,32 @@ namespace Gimpies
             else
             {
                 //Bewerken
+                bool itemBestaat = ranks.Any(r => r.Id == Int64.Parse(comboBox1.SelectedValue.ToString()));
+                if (itemBestaat)
+                {
+                    //Kijken of gebruikersnaam al bestaat
+                    bool gebruikersBestaat = mainForm.werknemers.Any(r => r.Username == gebruikerTextbox.Text && r.Id != werknemer.Id);
+                    if (!gebruikersBestaat)
+                    {
+                        //Gebruikersnaam bestaat niet dus updaten
+                        globalClass.MysqlGebruikerUpdate(werknemer.Id,gebruikerTextbox.Text,wachtwoordTextbox.Text,Int64.Parse(comboBox1.SelectedValue.ToString()));
+                        mainForm.Populate();
+                        if (werknemer.Id == mainForm.loggedInWerknemer.Id)
+                        {
+                            mainForm.LogOut();
+                        }
+                        this.Close();
+                    }
+                    else
+                    {
+                        //Gebruikersnaam bestaat al
+                        MessageBox.Show("Gebruikersnaam al in gebruik");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Geselecteerde rang bestaat niet");
+                }
             }
         }
 
@@ -85,6 +111,10 @@ namespace Gimpies
             {
                 var item = ranks.Find(r => r.Id == werknemer.Rank);
                 comboBox1.SelectedIndex = comboBox1.FindStringExact(item.Title);
+                if (werknemer.Id == mainForm.loggedInWerknemer.Id)
+                {
+                    comboBox1.Enabled = false;
+                }
                 gebruikerTextbox.Text = werknemer.Username;
                 wachtwoordTextbox.Text = werknemer.Wachtwoord;
                 toevoegBtn.Text = "Opslaan";
