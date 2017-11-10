@@ -30,16 +30,18 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint9 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(1D, "489,0,0,0");
-            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint10 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, "500,0,0,0");
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint1 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(1D, "489,0,0,0");
+            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint2 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, "500,0,0,0");
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.bestandToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.uitloggenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.afsluitenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.instellingenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.verbergToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -63,12 +65,7 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.totaalVerkochtEuro = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.totaalVerkocht = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
+            this.panel4 = new System.Windows.Forms.Panel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.verkochtListView = new System.Windows.Forms.ListView();
             this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -78,7 +75,19 @@
             this.columnHeader13 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader14 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel3 = new System.Windows.Forms.Panel();
-            this.panel4 = new System.Windows.Forms.Panel();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.totaalVerkochtEuro = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.totaalVerkocht = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.werknemersTab = new System.Windows.Forms.TabPage();
+            this.werknemersListview = new System.Windows.Forms.ListView();
+            this.columnHeader11 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader12 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader19 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.toolStrip2 = new System.Windows.Forms.ToolStrip();
+            this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -89,22 +98,26 @@
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.tabPage3.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.panel4.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.panel3.SuspendLayout();
-            this.panel4.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            this.werknemersTab.SuspendLayout();
+            this.toolStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
             // 
             this.menuStrip1.BackColor = System.Drawing.Color.White;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.bestandToolStripMenuItem});
+            this.bestandToolStripMenuItem,
+            this.instellingenToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(854, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
+            this.menuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStrip1_ItemClicked);
             // 
             // bestandToolStripMenuItem
             // 
@@ -137,6 +150,24 @@
             this.afsluitenToolStripMenuItem.Text = "Afsluiten";
             this.afsluitenToolStripMenuItem.Click += new System.EventHandler(this.afsluitenToolStripMenuItem_Click);
             // 
+            // instellingenToolStripMenuItem
+            // 
+            this.instellingenToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.verbergToolStripMenuItem});
+            this.instellingenToolStripMenuItem.Name = "instellingenToolStripMenuItem";
+            this.instellingenToolStripMenuItem.Size = new System.Drawing.Size(66, 20);
+            this.instellingenToolStripMenuItem.Text = "Voorraad";
+            // 
+            // verbergToolStripMenuItem
+            // 
+            this.verbergToolStripMenuItem.Checked = true;
+            this.verbergToolStripMenuItem.CheckOnClick = true;
+            this.verbergToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.verbergToolStripMenuItem.Name = "verbergToolStripMenuItem";
+            this.verbergToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.verbergToolStripMenuItem.Text = "Verberg uitverkocht";
+            this.verbergToolStripMenuItem.Click += new System.EventHandler(this.verbergToolStripMenuItem_Click);
+            // 
             // panel1
             // 
             this.panel1.Controls.Add(this.tabControl1);
@@ -151,6 +182,7 @@
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Controls.Add(this.werknemersTab);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
@@ -325,28 +357,27 @@
             this.chart1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea5.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea5);
-            legend5.Name = "Legend1";
-            this.chart1.Legends.Add(legend5);
+            chartArea1.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chart1.Legends.Add(legend1);
             this.chart1.Location = new System.Drawing.Point(3, 3);
             this.chart1.Name = "chart1";
-            series5.ChartArea = "ChartArea1";
-            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.StackedColumn;
-            series5.Legend = "Legend1";
-            series5.Name = "Verkochte schoenen";
-            dataPoint9.AxisLabel = "Nike";
-            dataPoint10.AxisLabel = "Adidas";
-            series5.Points.Add(dataPoint9);
-            series5.Points.Add(dataPoint10);
-            series5.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.String;
-            series5.YValuesPerPoint = 4;
-            series5.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int64;
-            this.chart1.Series.Add(series5);
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.StackedColumn;
+            series1.Legend = "Legend1";
+            series1.Name = "Verkochte schoenen";
+            dataPoint1.AxisLabel = "Nike";
+            dataPoint2.AxisLabel = "Adidas";
+            series1.Points.Add(dataPoint1);
+            series1.Points.Add(dataPoint2);
+            series1.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.String;
+            series1.YValuesPerPoint = 4;
+            series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int64;
+            this.chart1.Series.Add(series1);
             this.chart1.Size = new System.Drawing.Size(840, 536);
             this.chart1.TabIndex = 0;
             this.chart1.Text = "chart1";
-            this.chart1.Click += new System.EventHandler(this.chart1_Click);
             // 
             // tabPage3
             // 
@@ -359,65 +390,14 @@
             this.tabPage3.Text = "Verkocht";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // groupBox1
+            // panel4
             // 
-            this.groupBox1.Controls.Add(this.totaalVerkochtEuro);
-            this.groupBox1.Controls.Add(this.label4);
-            this.groupBox1.Controls.Add(this.totaalVerkocht);
-            this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox1.Location = new System.Drawing.Point(0, 0);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(846, 79);
-            this.groupBox1.TabIndex = 0;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Algemeen";
-            // 
-            // totaalVerkochtEuro
-            // 
-            this.totaalVerkochtEuro.AutoSize = true;
-            this.totaalVerkochtEuro.Location = new System.Drawing.Point(132, 48);
-            this.totaalVerkochtEuro.Name = "totaalVerkochtEuro";
-            this.totaalVerkochtEuro.Size = new System.Drawing.Size(13, 13);
-            this.totaalVerkochtEuro.TabIndex = 6;
-            this.totaalVerkochtEuro.Text = "0";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(123, 48);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(13, 13);
-            this.label4.TabIndex = 5;
-            this.label4.Text = "€";
-            // 
-            // totaalVerkocht
-            // 
-            this.totaalVerkocht.AutoSize = true;
-            this.totaalVerkocht.Location = new System.Drawing.Point(132, 22);
-            this.totaalVerkocht.Name = "totaalVerkocht";
-            this.totaalVerkocht.Size = new System.Drawing.Size(13, 13);
-            this.totaalVerkocht.TabIndex = 4;
-            this.totaalVerkocht.Text = "0";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(8, 48);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(109, 13);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "Totaal verkocht euro:";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(8, 22);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(85, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Totaal verkocht:";
+            this.panel4.Controls.Add(this.groupBox2);
+            this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel4.Location = new System.Drawing.Point(0, 79);
+            this.panel4.Name = "panel4";
+            this.panel4.Size = new System.Drawing.Size(846, 463);
+            this.panel4.TabIndex = 2;
             // 
             // groupBox2
             // 
@@ -488,14 +468,129 @@
             this.panel3.Size = new System.Drawing.Size(846, 79);
             this.panel3.TabIndex = 1;
             // 
-            // panel4
+            // groupBox1
             // 
-            this.panel4.Controls.Add(this.groupBox2);
-            this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel4.Location = new System.Drawing.Point(0, 79);
-            this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(846, 463);
-            this.panel4.TabIndex = 2;
+            this.groupBox1.Controls.Add(this.totaalVerkochtEuro);
+            this.groupBox1.Controls.Add(this.label4);
+            this.groupBox1.Controls.Add(this.totaalVerkocht);
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox1.Location = new System.Drawing.Point(0, 0);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(846, 79);
+            this.groupBox1.TabIndex = 0;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Algemeen";
+            // 
+            // totaalVerkochtEuro
+            // 
+            this.totaalVerkochtEuro.AutoSize = true;
+            this.totaalVerkochtEuro.Location = new System.Drawing.Point(132, 48);
+            this.totaalVerkochtEuro.Name = "totaalVerkochtEuro";
+            this.totaalVerkochtEuro.Size = new System.Drawing.Size(13, 13);
+            this.totaalVerkochtEuro.TabIndex = 6;
+            this.totaalVerkochtEuro.Text = "0";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(123, 48);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(13, 13);
+            this.label4.TabIndex = 5;
+            this.label4.Text = "€";
+            // 
+            // totaalVerkocht
+            // 
+            this.totaalVerkocht.AutoSize = true;
+            this.totaalVerkocht.Location = new System.Drawing.Point(132, 22);
+            this.totaalVerkocht.Name = "totaalVerkocht";
+            this.totaalVerkocht.Size = new System.Drawing.Size(13, 13);
+            this.totaalVerkocht.TabIndex = 4;
+            this.totaalVerkocht.Text = "0";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(8, 48);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(109, 13);
+            this.label2.TabIndex = 3;
+            this.label2.Text = "Totaal verkocht euro:";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(8, 22);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(85, 13);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Totaal verkocht:";
+            // 
+            // werknemersTab
+            // 
+            this.werknemersTab.Controls.Add(this.werknemersListview);
+            this.werknemersTab.Controls.Add(this.toolStrip2);
+            this.werknemersTab.Location = new System.Drawing.Point(4, 22);
+            this.werknemersTab.Name = "werknemersTab";
+            this.werknemersTab.Padding = new System.Windows.Forms.Padding(3);
+            this.werknemersTab.Size = new System.Drawing.Size(846, 542);
+            this.werknemersTab.TabIndex = 3;
+            this.werknemersTab.Text = "Werknemers";
+            this.werknemersTab.UseVisualStyleBackColor = true;
+            // 
+            // werknemersListview
+            // 
+            this.werknemersListview.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader11,
+            this.columnHeader12,
+            this.columnHeader19});
+            this.werknemersListview.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.werknemersListview.FullRowSelect = true;
+            this.werknemersListview.Location = new System.Drawing.Point(3, 28);
+            this.werknemersListview.MultiSelect = false;
+            this.werknemersListview.Name = "werknemersListview";
+            this.werknemersListview.Size = new System.Drawing.Size(840, 511);
+            this.werknemersListview.TabIndex = 4;
+            this.werknemersListview.UseCompatibleStateImageBehavior = false;
+            this.werknemersListview.View = System.Windows.Forms.View.Details;
+            this.werknemersListview.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.werknemersListview_MouseDoubleClick);
+            // 
+            // columnHeader11
+            // 
+            this.columnHeader11.Text = "Id";
+            // 
+            // columnHeader12
+            // 
+            this.columnHeader12.Text = "Gebruikersnaam";
+            this.columnHeader12.Width = 371;
+            // 
+            // columnHeader19
+            // 
+            this.columnHeader19.Text = "Rang";
+            this.columnHeader19.Width = 154;
+            // 
+            // toolStrip2
+            // 
+            this.toolStrip2.BackColor = System.Drawing.Color.White;
+            this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripButton3});
+            this.toolStrip2.Location = new System.Drawing.Point(3, 3);
+            this.toolStrip2.Name = "toolStrip2";
+            this.toolStrip2.Size = new System.Drawing.Size(840, 25);
+            this.toolStrip2.TabIndex = 3;
+            this.toolStrip2.Text = "toolStrip2";
+            // 
+            // toolStripButton3
+            // 
+            this.toolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButton3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton3.Image")));
+            this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton3.Name = "toolStripButton3";
+            this.toolStripButton3.Size = new System.Drawing.Size(69, 22);
+            this.toolStripButton3.Text = "Toevoegen";
+            this.toolStripButton3.Click += new System.EventHandler(this.toolStripButton3_Click);
             // 
             // Main
             // 
@@ -527,11 +622,15 @@
             this.tabPage2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             this.tabPage3.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.panel4.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
-            this.panel4.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.werknemersTab.ResumeLayout(false);
+            this.werknemersTab.PerformLayout();
+            this.toolStrip2.ResumeLayout(false);
+            this.toolStrip2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -583,5 +682,14 @@
         private System.Windows.Forms.ColumnHeader columnHeader14;
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.ToolStripMenuItem instellingenToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem verbergToolStripMenuItem;
+        private System.Windows.Forms.TabPage werknemersTab;
+        private System.Windows.Forms.ToolStrip toolStrip2;
+        private System.Windows.Forms.ToolStripButton toolStripButton3;
+        private System.Windows.Forms.ListView werknemersListview;
+        private System.Windows.Forms.ColumnHeader columnHeader11;
+        private System.Windows.Forms.ColumnHeader columnHeader12;
+        private System.Windows.Forms.ColumnHeader columnHeader19;
     }
 }

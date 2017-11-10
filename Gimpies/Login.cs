@@ -35,7 +35,7 @@ namespace Gimpies
         {
             Werknemer tmpWerknemer = globalClass.GetWerknemer(wachtwoordTxtBox.Text, gebruikersnaamTxtBox.Text);
             //if (globalClass.LOGIN(wachtwoordTxtBox.Text, gebruikersnaamTxtBox.Text))
-            if (tmpWerknemer.Id != -1)
+            if ((tmpWerknemer.Id != -1) && (tmpWerknemer.Rank != 2))
             {
                 //Gebruikersnaam meenemen naar main form
                 string _gebruikersnaam = globalClass.FIRST_CHAR_UC(gebruikersnaamTxtBox.Text);

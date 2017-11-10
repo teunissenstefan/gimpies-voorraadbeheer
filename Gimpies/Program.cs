@@ -24,7 +24,6 @@ namespace Gimpies
 
         static List<Voorraad> voorraad = new List<Voorraad>();
         static string _username = "";
-        static string _ww = "";
         static Werknemer werknemer;
 
         const ConsoleKey menuKey = ConsoleKey.F8;
@@ -98,7 +97,7 @@ namespace Gimpies
                 switch (view)
                 {
                     case View.Login:
-                        DisplayLoginUsername();
+                        DisplayLogin();
                         break;
                     case View.Menu:
                         //Als de gebruikersnaam niet leeg is naar menu gaan, anders naar login
@@ -107,7 +106,7 @@ namespace Gimpies
                         }
                         else
                         {
-                            DisplayLoginUsername();
+                            DisplayLogin();
                         }
                         break;
                     case View.BekijkVoorraad:
@@ -156,50 +155,38 @@ namespace Gimpies
                 MainView(view);
             }
         }
-        //Naam gedeelte van de login
-        static void DisplayLoginUsername(int tries = 0)
+        //Login
+        static void DisplayLogin(int tries = 0)
         {
             if (exit) { return; }
             Header("Login");
             Console.Write("Username: ");
-            DisplayLoginPassword(tries, ReadLine());
-        }
-        //Wachtwoord gedeelte van de login
-        static void DisplayLoginPassword(int tries = 0, string username = "")
-        {
-            if (exit) { return; }
-            if (username == string.Empty)
+            string uname = ReadLine();
+            Console.Write("\nWachtwoord: ");
+            string pword = ReadPassword();
+            Werknemer tmpWerknemer = globalClass.GetWerknemer(pword, uname);
+            if ((tmpWerknemer.Id != -1) && (tmpWerknemer.Rank != 1))
             {
-                DisplayLoginUsername(tries);
+                _username = uname;
+                werknemer = tmpWerknemer;
+                globalClass.CheckIn(werknemer.Id);
+                MainView(View.Menu);
             }
             else
             {
-                Console.Write("\nPassword: ");
-                string ww = ReadPassword();
-                if (globalClass.OLDLOGIN(ww))
+                tries = tries + 1;
+                if (tries < MaxLogins)
                 {
-                    _username = username;
-                    _ww = ww;
-                    werknemer = globalClass.GetWerknemer(ww,username);
-                    globalClass.CheckIn(werknemer.Id);
-                    MainView(View.Menu);
+                    Console.Clear();
+                    Console.WriteLine("Fout ingelogd");
+                    Console.ReadKey();
+                    DisplayLogin(tries);
                 }
                 else
                 {
-                    tries = tries + 1;
-                    if (tries < MaxLogins)
-                    {
-                        Console.Clear();
-                        Console.WriteLine("Wachtwoord fout");
-                        Console.ReadKey();
-                        DisplayLoginUsername(tries);
-                    }
-                    else
-                    {
-                        Console.Clear();
-                        Console.WriteLine("Wachtwoord 3 keer fout");
-                        Console.ReadKey();
-                    }
+                    Console.Clear();
+                    Console.WriteLine(MaxLogins.ToString() + " keer fout ingelogd");
+                    Console.ReadKey();
                 }
             }
         }

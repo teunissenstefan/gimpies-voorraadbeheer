@@ -52,6 +52,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Rank.cs" />
+    <Compile Include="WerknemerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WerknemerForm.Designer.cs">
+      <DependentUpon>WerknemerForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="VerkoopRegistreren.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -91,6 +98,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="WerknemerForm.resx">
+      <DependentUpon>WerknemerForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="VerkoopRegistreren.resx">
       <DependentUpon>VerkoopRegistreren.cs</DependentUpon>
     </EmbeddedResource>

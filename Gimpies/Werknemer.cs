@@ -8,15 +8,17 @@ namespace Gimpies
 {
     public class Werknemer
     {
-        public Werknemer(long id, string username, int rank)
+        public Werknemer(long id, string username, int rank, string password)
         {
             this._id = id;
             this._username = username;
+            this._password = password;
             this._rank = rank;
         }
 
         private long _id;
         private string _username;
+        private string _password;
         private int _rank;
 
         public long Id
@@ -40,6 +42,18 @@ namespace Gimpies
             set
             {
                 this._username = value;
+            }
+        }
+
+        public string Wachtwoord
+        {
+            get
+            {
+                return this._password;
+            }
+            set
+            {
+                this._password = value;
             }
         }
 

@@ -402,7 +402,7 @@ namespace Gimpies
                         adap.Fill(ds);
                         foreach (DataRowView resultRow in ds.Tables[0].DefaultView)
                         {
-                            Werknemer wnemer = new Werknemer((Int64)resultRow.Row["id"], resultRow.Row["username"].ToString(), (Int32)resultRow.Row["rank"]);
+                            Werknemer wnemer = new Werknemer((Int64)resultRow.Row["id"], resultRow.Row["username"].ToString(), (Int32)resultRow.Row["rank"], resultRow.Row["password"].ToString());
                             werknemers.Add(wnemer);
                         }
                     }
@@ -415,6 +415,38 @@ namespace Gimpies
                 MessageBox.Show("Kan niet verbinden met de database: " + ex.ToString());
                 List<Werknemer> werknemers = new List<Werknemer>();
                 return werknemers;
+            }
+        }
+        public List<Rank> GetRanks()
+        {
+            try
+            {
+                List<Rank> ranks = new List<Rank>();
+
+                using (var connection = new MySqlConnection(ConnectionString()))
+                {
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "SELECT * FROM ranks";
+                        MySqlDataAdapter adap = new MySqlDataAdapter(command);
+                        DataSet ds = new DataSet();
+                        adap.Fill(ds);
+                        foreach (DataRowView resultRow in ds.Tables[0].DefaultView)
+                        {
+                            Rank rank = new Rank((Int64)resultRow.Row["rankid"], resultRow.Row["title"].ToString());
+                            ranks.Add(rank);
+                        }
+                    }
+                    connection.Close();
+                    return ranks;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Kan niet verbinden met de database: " + ex.ToString());
+                List<Rank> ranks = new List<Rank>();
+                return ranks;
             }
         }
         public Werknemer GetWerknemer(string wachtwoord, string username)
@@ -436,18 +468,43 @@ namespace Gimpies
                         {
                             if (resultRow.Row["username"].ToString() == username)
                             {
-                                return new Werknemer((Int64)resultRow.Row["id"], resultRow.Row["username"].ToString(), (Int32)resultRow.Row["rank"]);
+                                return new Werknemer((Int64)resultRow.Row["id"], resultRow.Row["username"].ToString(), (Int32)resultRow.Row["rank"], resultRow.Row["password"].ToString());
                             }
                         }
                     }
                     connection.Close();
-                    return new Werknemer(-1,"",0);
+                    return new Werknemer(-1,"",0,"");
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Kan niet verbinden met de database: " + ex.ToString());
-                return new Werknemer(-1, "", 0);
+                return new Werknemer(-1, "", 0,"");
+            }
+        }
+        public bool MysqlGebruikerToevoegen(string username, string password, long rank)
+        {
+            try
+            {
+                using (var connection = new MySqlConnection(ConnectionString()))
+                {
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "INSERT INTO werknemers (username,password,rank) VALUES (@uname,@pword,@rank)";
+                        command.Parameters.AddWithValue("@uname", username);
+                        command.Parameters.AddWithValue("@pword", password);
+                        command.Parameters.AddWithValue("@rank", rank);
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Kan de rij niet toevoegen: " + ex.ToString());
+                return false;
             }
         }
     }
