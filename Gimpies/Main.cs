@@ -215,14 +215,14 @@ namespace Gimpies
                     if (vr != null && wn != null)
                     {
                         varTotaalVerkocht += Int64.Parse(s.Aantal.ToString());
-                        varTotaalVerkochtEuro += float.Parse(s.Euro.ToString());
+                        varTotaalVerkochtEuro += float.Parse(s.Euro, CultureInfo.InvariantCulture.NumberFormat);
                         //In listview stoppen \/
 
                         ListViewItem item = new ListViewItem(s.Id.ToString());
                         item.SubItems.Add(globalClass.FIRST_CHAR_UC(wn.Username));
                         item.SubItems.Add(vr.ItemDesc);
                         item.SubItems.Add(s.Aantal.ToString());
-                        item.SubItems.Add(s.Euro);
+                        item.SubItems.Add(string.Format("{0:n}", float.Parse(s.Euro, CultureInfo.InvariantCulture.NumberFormat)));
                         item.SubItems.Add(s.Datum.ToString());
                         verkochtListView.Items.Add(item);
                     }
@@ -235,7 +235,7 @@ namespace Gimpies
                 foreach (Sale s in mySales)
                 {
                     varTotaalVerkocht += Int64.Parse(s.Aantal.ToString());
-                    varTotaalVerkochtEuro += float.Parse(s.Euro.ToString());
+                    varTotaalVerkochtEuro += float.Parse(s.Euro, CultureInfo.InvariantCulture.NumberFormat);
                     //In listview stoppen \/
                     Voorraad vr = voorraad.Find(r => r.ItemID == s.ArtikelId);
 
@@ -243,7 +243,7 @@ namespace Gimpies
                     item.SubItems.Add(globalClass.FIRST_CHAR_UC(loggedInWerknemer.Username));
                     item.SubItems.Add(vr.ItemDesc);
                     item.SubItems.Add(s.Aantal.ToString());
-                    item.SubItems.Add(s.Euro);
+                    item.SubItems.Add(string.Format("{0:n}", float.Parse(s.Euro, CultureInfo.InvariantCulture.NumberFormat)));
                     item.SubItems.Add(s.Datum.ToString());
                     verkochtListView.Items.Add(item);
                 }
@@ -270,7 +270,7 @@ namespace Gimpies
                     item.SubItems.Add(row.ItemAmount.ToString());
                     item.SubItems.Add(row.ItemVerkocht.ToString());
                     item.SubItems.Add(row.ItemMaat.ToString());
-                    item.SubItems.Add(row.ItemPrijs.ToString());
+                    item.SubItems.Add(string.Format("{0:n}", float.Parse(row.ItemPrijs, CultureInfo.InvariantCulture.NumberFormat)));
                     artikelenList.Items.Add(item);
                 }
             }
@@ -289,7 +289,7 @@ namespace Gimpies
                     item.SubItems.Add(row.ItemAmount.ToString());
                     item.SubItems.Add(row.ItemVerkocht.ToString());
                     item.SubItems.Add(row.ItemMaat.ToString());
-                    item.SubItems.Add(row.ItemPrijs.ToString());
+                    item.SubItems.Add(string.Format("{0:n}", float.Parse(row.ItemPrijs, CultureInfo.InvariantCulture.NumberFormat)));
                     artikelenList.Items.Add(item);
                 }
             }
